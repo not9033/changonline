@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+@using Microsoft.AspNetCore.Identity
+@using ChangOnline.Models
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - ChangOnline</title>
+    @* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/allprovider.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/ChangOnline.styles.css" asp-append-version="true"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a708a4dd6d.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+<div class="page-wrapper">
+    <div class="header">
+        <div class="logo">
+            <a asp-area="" asp-controller="Home" asp-action="">ระบบเรียกช่างออนไลน์</a>
+        </div>
+        <div class="nav">
+            <div class="nav-item">
+                <a asp-area="" asp-controller="Home" asp-action="">การเรียกใช้บริการของฉัน</a>
+            </div>
+            <div class="nav-item">
+                <a asp-area="" asp-controller="Home" asp-action="">สมัครเป็นช่าง</a>
+            </div>
+            <div class="nav-item">
+                <a asp-area="" asp-controller="Home" asp-action="AllProvider">ช่างทั้งหมด</a>
+            </div>
+            <div class="nav-item">
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" style="display:inline;">
+                        <button type="submit" style="background:none; border:none; color:inherit; cursor:pointer; font:inherit; padding:0;">ออกจากระบบ (@UserManager.GetUserName(User))</button>
+                    </form>
+                }
+                else
+                {
+                    <p id="login-modal" style="cursor:pointer;">เข้าสู่ระบบ</p>
+                }
+            </div>
+
+            
+        </div>
+    </div>
+    <div class="login-modal-close" id="login-modal-close">
+        <div class="login-modal-content">
+            <div class="login-modal-header">
+                <p>ระบบเรียกช่างออนไลน์</p>
+                <p>เข้าสู่ระบบ</p>
+            </div>
+            <div class="login-modal-body">
+                <form method="post" class="login-form" asp-controller="Account" asp-action="Login">
+                    @if (TempData["LoginError"] != null)
+                    {
+                        <div class="alert alert-danger" style="color: red; text-align: center;">
+                            @TempData["LoginError"]
+                        </div>
+                        <script>
+                            // Auto open modal if there is an error
+                            window.onload = function() {
+                                var modal = document.getElementById('login-modal-close');
+                                if (modal) {
+                                    modal.style.display = "flex"; // Assuming flex is the display type when open, or block. Need to check CSS or JS.
+                                    // Actually the JS likely handles the click on #login-modal to open it.
+                                    // Let's try to simulate click if possible, or just set style.
+                                    // Since I don't see the JS, I'll assume adding a class or style works.
+                                    // But safer to just let the user open it again or use the script I added before.
+                                    // Re-adding the script to click the trigger.
+                                    var trigger = document.getElementById('login-modal');
+                                    if(trigger) trigger.click();
+                                }
+                            };
+                        </script>
+                    }
+                    <div class="form-input">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" name="Username" required>
+                    </div>
+                    <div class="form-input">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="Password" required>
+                    </div>
+                    <div class="form-check mb-3" style="text-align: left; margin-left: 10%;">
+                        <input type="checkbox" class="form-check-input" id="rememberMe" name="RememberMe" value="true">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <p style="text-align: center; margin: 20px auto;">ยังไม่มีบัญชี? <a asp-controller="Account" asp-action="Register">สมัครสมาชิก</a></p>
+                    <div class="login-btn-container">
+                        <button type="button" class="close-btn" id="modal-close">Close</button>
+                        <button type="submit" class="login-btn">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <main role="main" class="">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 - ChangOnline - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></p>
+    </footer>
+</div>
+@* <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

@@ -1,0 +1,102 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="banner">
+    <div class="banner-item">
+        <div class="banner-text">
+            <p style="font-size: 70px">มีทุกช่าง ครบจบที่นี่</p>
+            <p style="font-size: 40px">ถามหาช่างถามหาเรา</p>
+        </div>
+        <form method="post" asp-controller="Home" asp-action="search">
+            <div class="search-container">
+                <input type="text" name="search" class="search-box" placeholder="ค้นหาช่างที่นี่" />
+                <button type="submit" class="btn btn-primary btn-lg">ค้นหา</button>
+
+            </div>
+        </form>
+    </div>
+
+</div>
+<div class="category-container">
+    <div class="category-main">
+        <div class="category-item">
+            <img src="~/image/man.png" alt="">
+            <a asp-area="" asp-controller="Home" asp-action="">ช่างก่อสร้าง</a>
+        </div>
+        <div class="category-item">
+            <img src="~/image/man.png" alt="">
+            <a asp-area="" asp-controller="Home" asp-action="">ช่างไฟฟ้า</a>
+        </div>
+        <div class="category-item">
+            <img src="~/image/man.png" alt="">
+            <a asp-area="" asp-controller="Home" asp-action="">ช่างเครื่องกล</a>
+        </div>
+        <div class="category-item">
+            <img src="~/image/man.png" alt="">
+            <a asp-area="" asp-controller="Home" asp-action="">ช่างประปา</a>
+        </div>
+        <div class="category-item">
+            <img src="~/image/man.png" alt="">
+            <a asp-area="" asp-controller="Home" asp-action="">ช่างบริการ<br>ช่างซ่อมทั่วไป</a>
+        </div>
+        <div class="category-item">
+            <img src="~/image/man.png" alt="">
+            <a asp-area="" asp-controller="Home" asp-action="">ช่างเชื่อม<br> โลหะ</a>
+        </div>
+    </div>
+
+    <ul class="category-list">
+        <li class="category-sub-item">
+            <a asp-controller="Home" asp-action="BrickMason">ช่างก่ออิฐ / ปูน</a>
+        </li>
+        <li class="category-sub-item">
+            <a asp-controller="Home" asp-action="Plasterer">ช่างปูนฉาบ</a>
+        </li>
+        <li class="category-sub-item">
+            <a asp-controller="Home" asp-action="Carpenter">ช่างไม้ (โครงสร้าง)</a>
+        </li>
+        <li class="category-sub-item">
+            <a asp-controller="Home" asp-action="SteelWorker">ช่างเหล็ก / โครงเหล็ก</a>
+        </li>
+        <li class="category-sub-item">
+            <a asp-controller="Home" asp-action="Painter">ช่างทาสี</a>
+        </li>
+        <li class="category-sub-item">
+            <a asp-controller="Home" asp-action="ConcreteWorker">ช่างเทคอนกรีต</a>
+        </li>
+        <li class="category-sub-item">
+            <a asp-controller="Home" asp-action="Tiler">ช่างปูกระเบื้อง</a>
+        </li>
+        <li class="category-sub-item">
+            <a asp-controller="Home" asp-action="Roofer">ช่างหลังคา</a>
+        </li>
+    </ul>
+
+</div>
+
+<div class="comment-section">
+    <div class="section-header">
+        <p>ความคิดเห็นจากผู้ใช้บริการ</p>
+    </div>
+
+    <div class="comment-container">
+        
+            <div class="comment-card">
+            <div class="star">
+                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
+                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
+                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
+                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
+                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
+            </div>
+            <p class="comment-text">ช่างมาตรงเวลา งานเรียบร้อยดีครับ</p>
+            <div class="horizontal-line"></div>
+            <div class="comment-user-info">
+                <img src="~/image/man.png" alt="">
+                <p class="comment-user">นายสมชาย ใจดี</p>
+            </div>
+        </div>
+        
+    </div>
+</div>
