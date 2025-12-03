@@ -2,14 +2,14 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ChangOnline.Models;
 
-namespace ChangOnline.Context;
-
-public class AppDbContext : IdentityDbContext<AppUser>
+namespace ChangOnline.Context
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
-    }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
 
-    // บอกให้รู้ว่ามีตาราง Products
-    
+        public DbSet<Product> Products { get; set; }
+    }
 }

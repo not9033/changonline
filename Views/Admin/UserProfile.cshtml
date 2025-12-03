@@ -1,0 +1,18 @@
+@model ChangOnline.Models.AppUser
+
+@{
+    ViewData["Title"] = "โปรไฟล์ผู้ใช้";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card mb-3" style="max-width: 600px;">
+    <div class="card-body">
+        <h4>@Model.FirstName @Model.LastName</h4>
+        <p><strong>Email:</strong> @Model.Email</p>
+        <p><strong>Phone:</strong> @Model.Phone</p>
+        <p><strong>Username:</strong> @Model.UserName</p>
+    </div>
+</div>
+
+<a class="btn btn-secondary" href="/Admin/Users"><i class="bi bi-arrow-left"></i> กลับไปหน้าผู้ใช้</a>

@@ -1,0 +1,31 @@
+@model IEnumerable<ChangOnline.Models.AppUser>
+@{
+    ViewData["Title"] = "จัดการผู้ใช้";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>ชื่อ</th>
+            <th>Email</th>
+            <th>เบอร์โทร</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var u in Model)
+        {
+            <tr>
+                <td>@u.FirstName @u.LastName</td>
+                <td>@u.Email</td>
+                <td>@u.Phone</td>
+                <td>
+                    <a href="/Admin/UserProfile/@u.Id" class="btn btn-info btn-sm me-1">ดูโปรไฟล์</a>
+                    <a href="/Admin/DeleteUser/@u.Id" class="btn btn-danger btn-sm">ลบ</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
