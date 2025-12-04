@@ -1,0 +1,60 @@
+@model ChangOnline.Models.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">My Profile</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">Username:</div>
+                        <div class="col-sm-9">@Model.UserName</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">Email:</div>
+                        <div class="col-sm-9">@Model.Email</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">First Name:</div>
+                        <div class="col-sm-9">@Model.FirstName</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">Last Name:</div>
+                        <div class="col-sm-9">@Model.LastName</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">Phone:</div>
+                        <div class="col-sm-9">@Model.Phone</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">Address:</div>
+                        <div class="col-sm-9">
+                            @if (!string.IsNullOrEmpty(Model.SubdistrictName))
+                            {
+                                <span>@Model.SubdistrictName, </span>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.DistrictName))
+                            {
+                                <span>@Model.DistrictName, </span>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.ProvinceName))
+                            {
+                                <span>@Model.ProvinceName</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="EditProfile" class="btn btn-warning">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

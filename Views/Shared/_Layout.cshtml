@@ -32,7 +32,11 @@
                 <a asp-area="" asp-controller="Home" asp-action="">การเรียกใช้บริการของฉัน</a>
             </div>
             <div class="nav-item">
-                <a asp-area="" asp-controller="Home" asp-action="">สมัครเป็นช่าง</a>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a asp-area="" asp-controller="Provider" asp-action="Register">สมัครเป็นช่าง</a>
+                    <a asp-area="" asp-controller="Account" asp-action="Profile">ข้อมูลส่วนตัว</a>
+                }
             </div>
             <div class="nav-item">
                 <a asp-area="" asp-controller="Home" asp-action="AllProvider">ช่างทั้งหมด</a>
@@ -49,8 +53,6 @@
                     <p id="login-modal" style="cursor:pointer;">เข้าสู่ระบบ</p>
                 }
             </div>
-
-            
         </div>
     </div>
     <div class="login-modal-close" id="login-modal-close">
@@ -115,8 +117,8 @@
         <p>&copy; 2025 - ChangOnline - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></p>
     </footer>
 </div>
-@* <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>

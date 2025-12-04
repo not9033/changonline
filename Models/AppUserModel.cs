@@ -6,7 +6,11 @@ namespace ChangOnline.Models
     {
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
-        public string? Phone { get; set; }
+        
         public required string Role { get; set; }
+
+        public int? ProvinceId { get; set; }
+        public int? DistrictId { get; set; }
+        public int? SubdistrictId { get; set; }
     }
 }

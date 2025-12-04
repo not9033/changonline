@@ -2,6 +2,9 @@ using ChangOnline.Models;
 using ChangOnline.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace ChangOnline.Controllers
 {
@@ -9,11 +12,205 @@ namespace ChangOnline.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly ChangOnline.Context.AppDbContext _context;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
+            ChangOnline.Context.AppDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new ProfileViewModel
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Phone = user.PhoneNumber,
+                ProvinceId = user.ProvinceId,
+                DistrictId = user.DistrictId,
+                SubdistrictId = user.SubdistrictId
+            };
+
+            if (user.ProvinceId.HasValue)
+            {
+                model.ProvinceName = _context.Provinces.FirstOrDefault(p => p.ProvinceId == user.ProvinceId)?.NameTh;
+            }
+
+            if (user.DistrictId.HasValue)
+            {
+                model.DistrictName = _context.Districts.FirstOrDefault(d => d.DistrictId == user.DistrictId)?.NameTh;
+            }
+
+            if (user.SubdistrictId.HasValue)
+            {
+                model.SubdistrictName = _context.Subdistricts
+                    .FirstOrDefault(s => s.subdistrict_id == user.SubdistrictId)?.name_th;
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new ProfileViewModel
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Phone = user.PhoneNumber,
+                ProvinceId = user.ProvinceId,
+                DistrictId = user.DistrictId,
+                SubdistrictId = user.SubdistrictId
+            };
+
+            model.Provinces = _context.Provinces.Select(p => new SelectListItem
+            {
+                Value = p.ProvinceId.ToString(),
+                Text = p.NameTh
+            }).ToList();
+
+            if (model.ProvinceId.HasValue)
+            {
+                model.Districts = _context.Districts.Where(d => d.ProvinceId == model.ProvinceId).Select(d =>
+                    new SelectListItem
+                    {
+                        Value = d.DistrictId.ToString(),
+                        Text = d.NameTh
+                    }).ToList();
+            }
+
+            if (model.DistrictId.HasValue)
+            {
+                model.Subdistricts = _context.Subdistricts.Where(s => s.district_id == model.DistrictId).Select(s =>
+                    new SelectListItem
+                    {
+                        Value = s.subdistrict_id.ToString(),
+                        Text = s.name_th
+                    }).ToList();
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(ProfileViewModel model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // 1. เช็คความถูกต้องของข้อมูล
+            if (ModelState.IsValid)
+            {
+                // 2. แมพข้อมูลจาก Model ลง User (แก้ไขจุด Phone -> PhoneNumber)
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.PhoneNumber = model.Phone; // ✅ ต้องใช้ PhoneNumber (ของ Identity)
+
+                // ข้อมูลที่อยู่
+                user.ProvinceId = model.ProvinceId;
+                user.DistrictId = model.DistrictId;
+                user.SubdistrictId = model.SubdistrictId;
+
+                // 3. สั่งบันทึกลง Database
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    TempData["SuccessMessage"] = "บันทึกข้อมูลสำเร็จ!";
+                    return RedirectToAction("Profile");
+                }
+
+                // ถ้าบันทึกไม่ผ่าน (เช่น เบอร์ซ้ำ หรือกฏ Password)
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            else
+            {
+                // 🚨 ถ้าไม่เข้า Database ให้ดูตรงนี้! (มันจะปริ้น Error ออกมาที่ Output Console)
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    Debug.WriteLine($">>> VALIDATION ERROR: {error.ErrorMessage}");
+                }
+            }
+
+            // --- 4. โหลด Dropdown กลับมาแสดง (กรณี Error หรือไม่ผ่าน Valid) ---
+
+            // โหลดจังหวัดใหม่เสมอ
+            model.Provinces = _context.Provinces.Select(p => new SelectListItem
+            {
+                Value = p.ProvinceId.ToString(),
+                Text = p.NameTh
+            }).ToList();
+
+            // ถ้ามีจังหวัดติดมา ให้โหลดอำเภอ
+            if (model.ProvinceId.HasValue)
+            {
+                model.Districts = _context.Districts
+                    .Where(d => d.ProvinceId == model.ProvinceId)
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DistrictId.ToString(),
+                        Text = d.NameTh
+                    }).ToList();
+            }
+
+            // ถ้ามีอำเภอติดมา ให้โหลดตำบล
+            if (model.DistrictId.HasValue)
+            {
+                model.Subdistricts = _context.Subdistricts
+                    .Where(s => s.district_id == model.DistrictId)
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.subdistrict_id.ToString(),
+                        Text = s.name_th
+                    }).ToList();
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult GetDistricts(int provinceId)
+        {
+            var districts = _context.Districts.Where(d => d.ProvinceId == provinceId)
+                .Select(d => new { id = d.DistrictId, name = d.NameTh })
+                .ToList();
+            return Json(districts);
+        }
+
+        [HttpGet]
+        public IActionResult GetSubdistricts(int districtId)
+        {
+            var subdistricts = _context.Subdistricts.Where(s => s.district_id == districtId)
+                .Select(s => new { id = s.subdistrict_id, name = s.name_th })
+                .ToList();
+            return Json(subdistricts);
         }
 
         [HttpGet]
@@ -33,7 +230,7 @@ namespace ChangOnline.Controllers
                     Email = model.Email,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
-                    Phone = model.Phone,
+                    PhoneNumber = model.Phone,
                     Role = "User" // Default role
                 };
 
@@ -59,7 +256,8 @@ namespace ChangOnline.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe,
+                    lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
@@ -69,32 +267,6 @@ namespace ChangOnline.Controllers
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
 
-            // If login fails, we might want to show the modal again with errors.
-            // For simplicity in this step, we might redirect to Home with an error or return a view.
-            // Since the user wants to use the modal, handling errors gracefully without a full page reload or redirect to a separate login page is tricky without AJAX.
-            // However, standard MVC postback will render a view.
-            // If we return View(model), we need a Login view. But we are using a modal in Layout.
-            // A common pattern for modal login failure in MVC is to redirect to Home but trigger the modal to open and show errors,
-            // or return the Home view with model state errors (but Home view expects HomeViewModel usually).
-            
-            // For now, let's try returning to Home/Index but we need to ensure we can display errors.
-            // Or simpler: Redirect to Home with a query parameter indicating error, and JS opens the modal.
-            
-            // Let's stick to standard behavior first:
-            // If failed, we probably should show a dedicated login page OR re-render the current page with the modal open.
-            // Given the constraints, I'll return to Home/Index for now, but this might lose ModelState errors if I use Redirect.
-            // If I return View("Index", "Home"), I need to pass the HomeViewModel if it exists.
-            
-            // Let's assume for now we just redirect back to Home with an error flag if possible, or just return a simple error view if it fails.
-            // Actually, the user just said "use the login modal".
-            // If I return View(), it looks for Login.cshtml.
-            
-            // Let's implement a basic fallback: if login fails, redirect to Home with an error query param?
-            // Or better, let's just return the View which will likely fail if we don't have Login.cshtml.
-            
-            // I will implement a basic Login.cshtml just in case as a fallback, OR
-            // I will change this to redirect to Home with an error message in TempData.
-            
             TempData["LoginError"] = "Invalid login attempt.";
             return RedirectToAction("Index", "Home");
         }

@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "Register as Provider";
+}
+
+<div class="container mt-5">
+    <h2>สมัครเป็นช่าง</h2>
+    <p>กรุณากรอกข้อมูลเพื่อสมัครเป็นช่างในระบบ</p>
+    <!-- Form content will go here later -->
+    <form>
+        <div class="mb-3">
+            <label for="providerName" class="form-label">ชื่อร้าน / ชื่อช่าง</label>
+            <input type="text" class="form-control" id="providerName">
+        </div>
+        <div class="mb-3">
+            <label for="providerType" class="form-label">ประเภทงานช่าง</label>
+            <select class="form-select" id="providerType">
+                <option selected>เลือกประเภทงาน...</option>
+                <option value="1">ช่างไฟฟ้า</option>
+                <option value="2">ช่างประปา</option>
+                <option value="3">ช่างแอร์</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">สมัคร</button>
+    </form>
+</div>

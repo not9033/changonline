@@ -1,0 +1,112 @@
+@model ChangOnline.Models.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0">Edit Profile</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditProfile" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserName" class="form-label"></label>
+                            <input asp-for="UserName" class="form-control" disabled />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" disabled />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label"></label>
+                            <input asp-for="Phone" class="form-control" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="ProvinceId" class="form-label"></label>
+                                <select asp-for="ProvinceId" asp-items="Model.Provinces" class="form-select" id="provinceSelect">
+                                    <option value="">-- Select Province --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="DistrictId" class="form-label"></label>
+                                <select asp-for="DistrictId" asp-items="Model.Districts" class="form-select" id="districtSelect">
+                                    <option value="">-- Select District --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="SubdistrictId" class="form-label"></label>
+                                <select asp-for="SubdistrictId" asp-items="Model.Subdistricts" class="form-select" id="subdistrictSelect">
+                                    <option value="">-- Select Subdistrict --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Profile" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('#provinceSelect').change(function () {
+                var provinceId = $(this).val();
+                $('#districtSelect').empty().append('<option value="">-- Select District --</option>');
+                $('#subdistrictSelect').empty().append('<option value="">-- Select Subdistrict --</option>');
+
+                if (provinceId) {
+                    $.getJSON('@Url.Action("GetDistricts", "Account")', { provinceId: provinceId }, function (data) {
+                        $.each(data, function (i, item) {
+                            $('#districtSelect').append($('<option>').text(item.name).val(item.id));
+                        });
+                    });
+                }
+            });
+
+            $('#districtSelect').change(function () {
+                var districtId = $(this).val();
+                $('#subdistrictSelect').empty().append('<option value="">-- Select Subdistrict --</option>');
+
+                if (districtId) {
+                    $.getJSON('@Url.Action("GetSubdistricts", "Account")', { districtId: districtId }, function (data) {
+                        $.each(data, function (i, item) {
+                            $('#subdistrictSelect').append($('<option>').text(item.name).val(item.id));
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+}
