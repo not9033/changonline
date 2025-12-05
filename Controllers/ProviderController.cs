@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using ChangOnline.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChangOnline.Controllers
 {
@@ -30,7 +31,10 @@ namespace ChangOnline.Controllers
             var model = new Models.ViewModels.ProviderRegisterViewModel();
 
             // Check if provider profile exists
-            var providerProfile = _context.ProviderProfiles.FirstOrDefault(p => p.UserId == user.Id);
+            var providerProfile = _context.ProviderProfiles
+                .Include(p => p.Categories)
+                .FirstOrDefault(p => p.UserId == user.Id);
+
             if (providerProfile != null)
             {
                 model.Address = providerProfile.Address;
@@ -38,7 +42,14 @@ namespace ChangOnline.Controllers
                 model.ProvinceId = providerProfile.ProvinceId;
                 model.DistrictId = providerProfile.DistrictId;
                 model.SubdistrictId = providerProfile.SubdistrictId;
+                model.SelectedCategoryIds = providerProfile.Categories.Select(c => c.Id).ToList();
             }
+
+            model.Categories = _context.ProviderCategories.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            }).ToList();
 
             model.Provinces = _context.Provinces.Select(p => new SelectListItem
             {
@@ -80,7 +91,10 @@ namespace ChangOnline.Controllers
 
             if (ModelState.IsValid)
             {
-                var providerProfile = _context.ProviderProfiles.FirstOrDefault(p => p.UserId == user.Id);
+                var providerProfile = _context.ProviderProfiles
+                    .Include(p => p.Categories)
+                    .FirstOrDefault(p => p.UserId == user.Id);
+
                 if (providerProfile == null)
                 {
                     providerProfile = new ProviderProfile
@@ -96,6 +110,19 @@ namespace ChangOnline.Controllers
                 providerProfile.DistrictId = model.DistrictId;
                 providerProfile.SubdistrictId = model.SubdistrictId;
 
+                // Update Categories
+                providerProfile.Categories.Clear();
+                if (model.SelectedCategoryIds != null && model.SelectedCategoryIds.Any())
+                {
+                    var selectedCategories = _context.ProviderCategories
+                        .Where(c => model.SelectedCategoryIds.Contains(c.Id))
+                        .ToList();
+                    foreach (var category in selectedCategories)
+                    {
+                        providerProfile.Categories.Add(category);
+                    }
+                }
+
                 // Add Provider Role
                 if (!await _userManager.IsInRoleAsync(user, "Provider"))
                 {
@@ -106,6 +133,13 @@ namespace ChangOnline.Controllers
 
                 return RedirectToAction("Profile", "Account");
             }
+
+            // Reload dropdowns if failed
+            model.Categories = _context.ProviderCategories.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            }).ToList();
 
             // Reload dropdowns if failed
             model.Provinces = _context.Provinces.Select(p => new SelectListItem

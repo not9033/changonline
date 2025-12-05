@@ -132,6 +132,27 @@ namespace ChangOnline.Migrations
                     b.ToTable("District");
                 });
 
+            modelBuilder.Entity("ChangOnline.Models.ProviderCategoryModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProviderCategories");
+                });
+
             modelBuilder.Entity("ChangOnline.Models.ProviderProfile", b =>
                 {
                     b.Property<int>("Id")
@@ -362,6 +383,21 @@ namespace ChangOnline.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ProviderCategoryModelProviderProfile", b =>
+                {
+                    b.Property<int>("CategoriesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProviderProfilesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CategoriesId", "ProviderProfilesId");
+
+                    b.HasIndex("ProviderProfilesId");
+
+                    b.ToTable("ProviderCategoryModelProviderProfile");
+                });
+
             modelBuilder.Entity("ChangOnline.Models.ProviderProfile", b =>
                 {
                     b.HasOne("ChangOnline.Models.District", "District")
@@ -438,6 +474,21 @@ namespace ChangOnline.Migrations
                     b.HasOne("ChangOnline.Models.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProviderCategoryModelProviderProfile", b =>
+                {
+                    b.HasOne("ChangOnline.Models.ProviderCategoryModel", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChangOnline.Models.ProviderProfile", null)
+                        .WithMany()
+                        .HasForeignKey("ProviderProfilesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

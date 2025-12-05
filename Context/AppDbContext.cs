@@ -14,4 +14,5 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<District> Districts { get; set; }
     public DbSet<Subdistrict> Subdistricts { get; set; }
     public DbSet<ProviderProfile> ProviderProfiles { get; set; }
+    public DbSet<ProviderCategoryModel> ProviderCategories { get; set; }
 }

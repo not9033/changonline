@@ -83,6 +83,71 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label">หมวดหมู่งานช่าง</label>
+                                <div>
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                                        เลือกหมวดหมู่
+                                    </button>
+                                </div>
+                                <!-- Display selected categories here -->
+                                <div id="selectedCategoriesDisplay" class="mt-2">
+                                    @if (Model.ProviderCategoryNames != null)
+                                    {
+                                        foreach (var name in Model.ProviderCategoryNames)
+                                        {
+                                            <span class="badge bg-info text-dark me-1">@name</span>
+                                        }
+                                    }
+                                </div>
+                                <!-- Hidden inputs for form submission -->
+                                <div id="hiddenCategoryInputs">
+                                    @if (Model.ProviderCategoryIds != null)
+                                    {
+                                        foreach (var id in Model.ProviderCategoryIds)
+                                        {
+                                            <input type="hidden" name="ProviderCategoryIds" value="@id"/>
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="categoryModalLabel">เลือกหมวดหมู่งานช่าง</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <input type="text" id="categorySearchInput" class="form-control mb-3" placeholder="ค้นหาหมวดหมู่...">
+                                            <div class="row" id="categoryList">
+                                                @if (Model.Categories != null)
+                                                {
+                                                    foreach (var category in Model.Categories)
+                                                    {
+                                                        <div class="col-md-2 category-item">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input category-checkbox" type="checkbox" value="@category.Value" data-name="@category.Text" id="modal_cat_@category.Value"
+                                                                       @(Model.ProviderCategoryIds != null && Model.ProviderCategoryIds.Contains(int.Parse(category.Value)) ? "checked" : "")>
+                                                                <label class="form-check-label" for="modal_cat_@category.Value">
+                                                                    @category.Text
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                                            <button type="button" class="btn btn-primary" id="saveCategoriesBtn">ยืนยัน</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
                                 <label asp-for="ProviderAddress" class="form-label"></label>
                                 <textarea asp-for="ProviderAddress" class="form-control" rows="3"></textarea>
                                 <span asp-validation-for="ProviderAddress" class="text-danger"></span>
@@ -180,6 +245,41 @@
                         });
                     });
                 }
+            });
+
+            // Category Modal Scripts
+            $('#categorySearchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('#categoryList .category-item').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            $('#saveCategoriesBtn').click(function() {
+                var selectedIds = [];
+                var selectedNames = [];
+                
+                $('.category-checkbox:checked').each(function() {
+                    selectedIds.push($(this).val());
+                    selectedNames.push($(this).data('name'));
+                });
+
+                // Update display
+                var displayHtml = '';
+                selectedNames.forEach(function(name) {
+                    displayHtml += '<span class="badge bg-info text-dark me-1">' + name + '</span>';
+                });
+                $('#selectedCategoriesDisplay').html(displayHtml);
+
+                // Update hidden inputs
+                var inputsHtml = '';
+                selectedIds.forEach(function(id) {
+                    inputsHtml += '<input type="hidden" name="ProviderCategoryIds" value="' + id + '" />';
+                });
+                $('#hiddenCategoryInputs').html(inputsHtml);
+
+                // Close modal
+                $('#categoryModal').modal('hide');
             });
         });
     </script>

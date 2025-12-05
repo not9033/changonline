@@ -43,7 +43,7 @@
                     <a asp-area="" asp-controller="Account" asp-action="Profile" class="text-decoration-none text-reset">ข้อมูลส่วนตัว</a>
                 }
             </div>
-            
+
             <div class="nav-item">
                 @if (SignInManager.IsSignedIn(User))
                 {
@@ -121,6 +121,7 @@
     </div>
 </div>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)

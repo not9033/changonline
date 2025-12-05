@@ -46,7 +46,10 @@ namespace ChangOnline.Controllers
 
             if (model.IsProvider)
             {
-                var providerProfile = _context.ProviderProfiles.FirstOrDefault(p => p.UserId == user.Id);
+                var providerProfile = _context.ProviderProfiles
+                    .Include(p => p.Categories)
+                    .FirstOrDefault(p => p.UserId == user.Id);
+
                 if (providerProfile != null)
                 {
                     model.ProviderAddress = providerProfile.Address;
@@ -54,6 +57,7 @@ namespace ChangOnline.Controllers
                     model.ProviderProvinceId = providerProfile.ProvinceId;
                     model.ProviderDistrictId = providerProfile.DistrictId;
                     model.ProviderSubdistrictId = providerProfile.SubdistrictId;
+                    model.ProviderCategoryNames = providerProfile.Categories.Select(c => c.Name).ToList();
 
                     if (providerProfile.ProvinceId.HasValue)
                         model.ProviderProvinceName = _context.Provinces
@@ -110,7 +114,10 @@ namespace ChangOnline.Controllers
 
             if (model.IsProvider)
             {
-                var providerProfile = _context.ProviderProfiles.FirstOrDefault(p => p.UserId == user.Id);
+                var providerProfile = _context.ProviderProfiles
+                    .Include(p => p.Categories)
+                    .FirstOrDefault(p => p.UserId == user.Id);
+
                 if (providerProfile != null)
                 {
                     model.ProviderAddress = providerProfile.Address;
@@ -118,8 +125,15 @@ namespace ChangOnline.Controllers
                     model.ProviderProvinceId = providerProfile.ProvinceId;
                     model.ProviderDistrictId = providerProfile.DistrictId;
                     model.ProviderSubdistrictId = providerProfile.SubdistrictId;
+                    model.ProviderCategoryIds = providerProfile.Categories.Select(c => c.Id).ToList();
                 }
             }
+
+            model.Categories = _context.ProviderCategories.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            }).ToList();
 
             model.Provinces = _context.Provinces.Select(p => new SelectListItem
             {
@@ -206,7 +220,10 @@ namespace ChangOnline.Controllers
                     // Update Provider Profile if applicable
                     if (await _userManager.IsInRoleAsync(user, "Provider"))
                     {
-                        var providerProfile = _context.ProviderProfiles.FirstOrDefault(p => p.UserId == user.Id);
+                        var providerProfile = _context.ProviderProfiles
+                            .Include(p => p.Categories)
+                            .FirstOrDefault(p => p.UserId == user.Id);
+
                         if (providerProfile == null)
                         {
                             providerProfile = new ProviderProfile { UserId = user.Id };
@@ -218,6 +235,19 @@ namespace ChangOnline.Controllers
                         providerProfile.ProvinceId = model.ProviderProvinceId;
                         providerProfile.DistrictId = model.ProviderDistrictId;
                         providerProfile.SubdistrictId = model.ProviderSubdistrictId;
+
+                        // Update Categories
+                        providerProfile.Categories.Clear();
+                        if (model.ProviderCategoryIds != null && model.ProviderCategoryIds.Any())
+                        {
+                            var selectedCategories = _context.ProviderCategories
+                                .Where(c => model.ProviderCategoryIds.Contains(c.Id))
+                                .ToList();
+                            foreach (var category in selectedCategories)
+                            {
+                                providerProfile.Categories.Add(category);
+                            }
+                        }
 
                         await _context.SaveChangesAsync();
                     }
@@ -245,6 +275,12 @@ namespace ChangOnline.Controllers
             // --- 4. โหลด Dropdown กลับมาแสดง (กรณี Error หรือไม่ผ่าน Valid) ---
 
             model.IsProvider = await _userManager.IsInRoleAsync(user, "Provider");
+
+            model.Categories = _context.ProviderCategories.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            }).ToList();
 
             // โหลดจังหวัดใหม่เสมอ
             model.Provinces = _context.Provinces.Select(p => new SelectListItem

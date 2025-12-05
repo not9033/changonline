@@ -25,6 +25,9 @@ namespace ChangOnline.Models.ViewModels
         [Display(Name = "ตำบล")]
         public int? SubdistrictId { get; set; }
 
+        public List<int> SelectedCategoryIds { get; set; } = new List<int>();
+        public IEnumerable<SelectListItem>? Categories { get; set; }
+
         // For Dropdowns
         public IEnumerable<SelectListItem>? Provinces { get; set; }
         public IEnumerable<SelectListItem>? Districts { get; set; }

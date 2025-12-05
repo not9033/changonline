@@ -30,15 +30,12 @@ namespace ChangOnline.Models.ViewModels
         public bool IsProvider { get; set; }
 
         [Display(Name = "Service")] public string? ProviderService { get; set; }
+        [Display(Name = "Shop Address")] public string? ProviderAddress { get; set; }
 
-        [Display(Name = "Shop/Provider Address")]
-        public string? ProviderAddress { get; set; }
+        public int? ProviderProvinceId { get; set; }
+        public int? ProviderDistrictId { get; set; }
+        public int? ProviderSubdistrictId { get; set; }
 
-        [Display(Name = "Province")] public int? ProviderProvinceId { get; set; }
-        [Display(Name = "District")] public int? ProviderDistrictId { get; set; }
-        [Display(Name = "Subdistrict")] public int? ProviderSubdistrictId { get; set; }
-
-        // For Display
         public string? ProvinceName { get; set; }
         public string? DistrictName { get; set; }
         public string? SubdistrictName { get; set; }
@@ -47,7 +44,10 @@ namespace ChangOnline.Models.ViewModels
         public string? ProviderDistrictName { get; set; }
         public string? ProviderSubdistrictName { get; set; }
 
-        // For Dropdowns
+        public List<int> ProviderCategoryIds { get; set; } = new List<int>();
+        public List<string> ProviderCategoryNames { get; set; } = new List<string>();
+        public IEnumerable<SelectListItem>? Categories { get; set; }
+
         public IEnumerable<SelectListItem>? Provinces { get; set; }
         public IEnumerable<SelectListItem>? Districts { get; set; }
         public IEnumerable<SelectListItem>? Subdistricts { get; set; }

@@ -64,6 +64,24 @@
                             <div class="col-sm-9">@Model.ProviderService</div>
                         </div>
                         <div class="row mb-3">
+                            <div class="col-sm-3 fw-bold">Categories:</div>
+                            <div class="col-sm-9">
+                                @if (Model.ProviderCategoryNames != null && Model.ProviderCategoryNames.Any())
+                                {
+                                    <ul>
+                                        @foreach (var categoryName in Model.ProviderCategoryNames)
+                                        {
+                                            <li>@categoryName</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="row mb-3">
                             <div class="col-sm-3 fw-bold">Shop Address:</div>
                             <div class="col-sm-9">
                                 @if (!string.IsNullOrEmpty(Model.ProviderAddress))
