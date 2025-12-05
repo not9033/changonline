@@ -1,6 +1,6 @@
-*{
-    margin:0;
-    padding:0;
+* {
+    margin: 0;
+    padding: 0;
     font-family: "Prompt", sans-serif;
     font-weight: 400;
     font-style: normal;
@@ -12,17 +12,21 @@
 } */
 
 html {
-  position: relative;   
-  min-height: 100%;
-  
-}
-.container {
-    flex: 1; /* ดัน footer ลงล่าง */
-    
+    position: relative;
+    min-height: 100%;
+
 }
 
-.header{
-    padding:10px;
+.container {
+    flex: 1;
+    /* ดัน footer ลงล่าง */
+    min-height: 90vh;
+    
+
+}
+
+.header {
+    padding: 10px;
     /* background-color: aqua; */
     display: flex;
     justify-content: space-between;
@@ -30,30 +34,36 @@ html {
     color: #196BA4;
 
 }
-.logo{
-    font-size:24px;
-    
+
+.logo {
+    font-size: 24px;
+
 }
-.nav{
+
+.navigation {
     display: flex;
-    margin:auto 0 auto 0;
-    
+    margin: auto 0 auto 0;
+
 }
+
 .nav-item {
     margin-right: 10px;
     text-decoration: none;
-    
+
 }
+
 a {
     text-decoration: none;
     color: #196BA4;
 }
+
 /* modal login */
 
-.login-modal-close{
+.login-modal-close {
     display: none;
 }
-.login-modal-open{
+
+.login-modal-open {
     display: block;
     z-index: 4;
     position: fixed;
@@ -67,29 +77,33 @@ a {
     /* height: 400px; */
 }
 
-.login-modal-header{
+.login-modal-header {
     color: #196BA4;
     font-size: 24px;
     text-align: center;
 }
-.login-modal-body{
+
+.login-modal-body {
     margin-top: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-.login-form{
+
+.login-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    
+
 }
-.form-input{
-    margin: 10px auto 5px auto ;
+
+.form-input {
+    margin: 10px auto 5px auto;
 }
-.login-btn-container{
+
+.login-btn-container {
     display: flex;
     width: 100%;
     justify-content: flex-end;
@@ -100,13 +114,14 @@ a {
 
 
 
-.banner{
+.banner {
     background: linear-gradient(145deg, #D7CBB7, #45B2CF);
     min-height: 480px;
-    
+
     z-index: 1;
 }
-.banner-item{
+
+.banner-item {
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -114,6 +129,7 @@ a {
     color: white;
 
 }
+
 .banner-text {
     margin: 70px auto auto auto;
     display: flex;
@@ -122,29 +138,33 @@ a {
     color: white;
     text-align: center;
 }
-.search-container{
+
+.search-container {
     display: flex;
     justify-content: center;
 }
-.category-container{
-    
+
+.category-container {
+
     z-index: 2;
     padding: 20px;
     height: auto;
-    margin: -90px auto  auto auto;
+    margin: -90px auto auto auto;
     width: 80%;
     background-color: white;
     box-shadow: 5px 5px 15px rgba(126, 126, 126, 0.3);
     border-radius: 15px;
 }
-.category-main{
+
+.category-main {
     width: 100%;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    
+
 }
-.category-item{
+
+.category-item {
     /* background-color: #D7CBB7; */
     display: flex;
     flex-direction: column;
@@ -154,24 +174,33 @@ a {
     align-items: center;
     text-align: center;
 }
-.category-item a{
-    margin-top: 10px; ;
+
+.category-item a {
+    margin-top: 10px;
+    ;
 }
-.category-item img{
+
+.category-item img {
     width: 40%;
 }
+
 ul {
-    list-style-type: none; /* เอาจุดออก */
-    padding: 0;            /* เอา padding ด้านซ้ายออก */
-    margin: 0;             /* เอา margin ด้านบน/ล่างออกถ้าต้องการ */
+    list-style-type: none;
+    /* เอาจุดออก */
+    padding: 0;
+    /* เอา padding ด้านซ้ายออก */
+    margin: 0;
+    /* เอา margin ด้านบน/ล่างออกถ้าต้องการ */
 }
-.category-list{
+
+.category-list {
     display: flex;
     justify-content: space-evenly;
     flex-wrap: wrap;
     margin-top: 10px;
 }
-.category-sub-item{
+
+.category-sub-item {
     min-height: 70px;
     width: 23.90%;
     margin-bottom: 0.8%;
@@ -179,16 +208,17 @@ ul {
     background-color: antiquewhite;
 }
 
-.comment-section{
+.comment-section {
     display: flex;
     align-items: center;
     flex-direction: column;
     margin: 20px auto 80px auto;
     width: 95%;
-    
-    
+
+
 }
-.section-header{
+
+.section-header {
     margin: auto;
     font-size: 32px;
     width: 95%;
@@ -199,10 +229,12 @@ ul {
     color: #196BA4;
     box-shadow: 0px 0px 10px rgba(125, 122, 122, 0.3);
 }
-.section-header p{
+
+.section-header p {
     margin-left: 2%;
 }
-.comment-container{
+
+.comment-container {
     margin-top: 26px;
     display: flex;
     flex-direction: row;
@@ -210,32 +242,36 @@ ul {
     gap: 10px;
 }
 
-.comment-card{
+.comment-card {
     width: 300px;
     height: 200px;
     box-shadow: 0px 0px 10px rgba(125, 122, 122, 0.3);
     padding: 20px;
 }
-.comment-text{
+
+.comment-text {
     height: 100px;
-    
+
 }
-.horizontal-line{
+
+.horizontal-line {
     width: 90%;
     height: 1px;
     background-color: gray;
     margin: 10px auto;
 }
-.comment-user-info{
+
+.comment-user-info {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 15px;
 }
-.comment-user-info img{
+
+.comment-user-info img {
     width: 50px;
     height: 50px;
-    
+
 }
 
 .page-wrapper {
@@ -246,14 +282,15 @@ ul {
 /*card */
 
 
-
-
-
-
-
 /* footer */
-.footer {
-    margin-top: auto; /* ติดล่าง */
+.footers {
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    margin-top: auto;
+    /* ติดล่าง */
     text-align: center;
-    background-color: #f2f2f2;
+    background-color: #e2dede;
 }

@@ -10,8 +10,8 @@ public class AppDbContext : IdentityDbContext<AppUser>
     {
     }
 
-    // บอกให้รู้ว่ามีตาราง Products
     public DbSet<Province> Provinces { get; set; }
     public DbSet<District> Districts { get; set; }
     public DbSet<Subdistrict> Subdistricts { get; set; }
+    public DbSet<ProviderProfile> ProviderProfiles { get; set; }
 }

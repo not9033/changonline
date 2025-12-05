@@ -7,8 +7,8 @@ namespace ChangOnline.Models.Admin
     {
         public static List<AppUser> Users = new List<AppUser>
         {
-            new AppUser { Id="1", FirstName="Somchai", LastName="S", Email="somchai@example.com", Phone="0812345678" },
-            new AppUser { Id="2", FirstName="Suda", LastName="L", Email="suda@example.com", Phone="0898765432" }
+            new AppUser { Id="1", FirstName="Somchai", LastName="S", Email="somchai@example.com", PhoneNumber= "0812345678", Role="Admin" },
+            new AppUser { Id="2", FirstName="Suda", LastName="L", Email="suda@example.com", PhoneNumber="0898765432", Role="User" }
         };
 
         public static List<TechnicianModel> Technicians = new List<TechnicianModel>

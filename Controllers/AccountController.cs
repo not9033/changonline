@@ -40,8 +40,32 @@ namespace ChangOnline.Controllers
                 Phone = user.PhoneNumber,
                 ProvinceId = user.ProvinceId,
                 DistrictId = user.DistrictId,
-                SubdistrictId = user.SubdistrictId
+                SubdistrictId = user.SubdistrictId,
+                IsProvider = await _userManager.IsInRoleAsync(user, "Provider")
             };
+
+            if (model.IsProvider)
+            {
+                var providerProfile = _context.ProviderProfiles.FirstOrDefault(p => p.UserId == user.Id);
+                if (providerProfile != null)
+                {
+                    model.ProviderAddress = providerProfile.Address;
+                    model.ProviderService = providerProfile.Service;
+                    model.ProviderProvinceId = providerProfile.ProvinceId;
+                    model.ProviderDistrictId = providerProfile.DistrictId;
+                    model.ProviderSubdistrictId = providerProfile.SubdistrictId;
+
+                    if (providerProfile.ProvinceId.HasValue)
+                        model.ProviderProvinceName = _context.Provinces
+                            .FirstOrDefault(p => p.ProvinceId == providerProfile.ProvinceId)?.NameTh;
+                    if (providerProfile.DistrictId.HasValue)
+                        model.ProviderDistrictName = _context.Districts
+                            .FirstOrDefault(d => d.DistrictId == providerProfile.DistrictId)?.NameTh;
+                    if (providerProfile.SubdistrictId.HasValue)
+                        model.ProviderSubdistrictName = _context.Subdistricts
+                            .FirstOrDefault(s => s.subdistrict_id == providerProfile.SubdistrictId)?.name_th;
+                }
+            }
 
             if (user.ProvinceId.HasValue)
             {
@@ -80,8 +104,22 @@ namespace ChangOnline.Controllers
                 Phone = user.PhoneNumber,
                 ProvinceId = user.ProvinceId,
                 DistrictId = user.DistrictId,
-                SubdistrictId = user.SubdistrictId
+                SubdistrictId = user.SubdistrictId,
+                IsProvider = await _userManager.IsInRoleAsync(user, "Provider")
             };
+
+            if (model.IsProvider)
+            {
+                var providerProfile = _context.ProviderProfiles.FirstOrDefault(p => p.UserId == user.Id);
+                if (providerProfile != null)
+                {
+                    model.ProviderAddress = providerProfile.Address;
+                    model.ProviderService = providerProfile.Service;
+                    model.ProviderProvinceId = providerProfile.ProvinceId;
+                    model.ProviderDistrictId = providerProfile.DistrictId;
+                    model.ProviderSubdistrictId = providerProfile.SubdistrictId;
+                }
+            }
 
             model.Provinces = _context.Provinces.Select(p => new SelectListItem
             {
@@ -107,6 +145,32 @@ namespace ChangOnline.Controllers
                         Value = s.subdistrict_id.ToString(),
                         Text = s.name_th
                     }).ToList();
+            }
+
+            // Provider Dropdowns
+            if (model.IsProvider)
+            {
+                if (model.ProviderProvinceId.HasValue)
+                {
+                    model.ProviderDistricts = _context.Districts.Where(d => d.ProvinceId == model.ProviderProvinceId)
+                        .Select(d =>
+                            new SelectListItem
+                            {
+                                Value = d.DistrictId.ToString(),
+                                Text = d.NameTh
+                            }).ToList();
+                }
+
+                if (model.ProviderDistrictId.HasValue)
+                {
+                    model.ProviderSubdistricts = _context.Subdistricts
+                        .Where(s => s.district_id == model.ProviderDistrictId).Select(s =>
+                            new SelectListItem
+                            {
+                                Value = s.subdistrict_id.ToString(),
+                                Text = s.name_th
+                            }).ToList();
+                }
             }
 
             return View(model);
@@ -139,6 +203,25 @@ namespace ChangOnline.Controllers
 
                 if (result.Succeeded)
                 {
+                    // Update Provider Profile if applicable
+                    if (await _userManager.IsInRoleAsync(user, "Provider"))
+                    {
+                        var providerProfile = _context.ProviderProfiles.FirstOrDefault(p => p.UserId == user.Id);
+                        if (providerProfile == null)
+                        {
+                            providerProfile = new ProviderProfile { UserId = user.Id };
+                            _context.ProviderProfiles.Add(providerProfile);
+                        }
+
+                        providerProfile.Service = model.ProviderService ?? "";
+                        providerProfile.Address = model.ProviderAddress ?? "";
+                        providerProfile.ProvinceId = model.ProviderProvinceId;
+                        providerProfile.DistrictId = model.ProviderDistrictId;
+                        providerProfile.SubdistrictId = model.ProviderSubdistrictId;
+
+                        await _context.SaveChangesAsync();
+                    }
+
                     TempData["SuccessMessage"] = "บันทึกข้อมูลสำเร็จ!";
                     return RedirectToAction("Profile");
                 }
@@ -160,6 +243,8 @@ namespace ChangOnline.Controllers
             }
 
             // --- 4. โหลด Dropdown กลับมาแสดง (กรณี Error หรือไม่ผ่าน Valid) ---
+
+            model.IsProvider = await _userManager.IsInRoleAsync(user, "Provider");
 
             // โหลดจังหวัดใหม่เสมอ
             model.Provinces = _context.Provinces.Select(p => new SelectListItem
@@ -190,6 +275,32 @@ namespace ChangOnline.Controllers
                         Value = s.subdistrict_id.ToString(),
                         Text = s.name_th
                     }).ToList();
+            }
+
+            // Provider Dropdowns
+            if (model.IsProvider)
+            {
+                if (model.ProviderProvinceId.HasValue)
+                {
+                    model.ProviderDistricts = _context.Districts.Where(d => d.ProvinceId == model.ProviderProvinceId)
+                        .Select(d =>
+                            new SelectListItem
+                            {
+                                Value = d.DistrictId.ToString(),
+                                Text = d.NameTh
+                            }).ToList();
+                }
+
+                if (model.ProviderDistrictId.HasValue)
+                {
+                    model.ProviderSubdistricts = _context.Subdistricts
+                        .Where(s => s.district_id == model.ProviderDistrictId).Select(s =>
+                            new SelectListItem
+                            {
+                                Value = s.subdistrict_id.ToString(),
+                                Text = s.name_th
+                            }).ToList();
+                }
             }
 
             return View(model);
