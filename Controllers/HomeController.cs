@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ChangOnline.Models;
+using ChangOnline.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChangOnline.Controllers
@@ -15,17 +16,14 @@ namespace ChangOnline.Controllers
 
         public IActionResult Index()
         {
-            return View();
-        }
-        public IActionResult AllProvider()
-        {
-            return View();
+            return View(new AllProviderViewModel());
         }
 
-        public IActionResult Privacy()
+        public IActionResult AllProvider()
         {
-            return View();
+            return RedirectToAction("Index", "AllProvider");
         }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

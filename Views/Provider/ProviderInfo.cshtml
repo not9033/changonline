@@ -1,0 +1,142 @@
+@model ChangOnline.Models.ProviderProfile
+
+@{
+    ViewData["Title"] = "Provider Info";
+}
+
+<style>
+    .provider-info-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px;
+        padding: 0 20px;
+    }
+
+    .provider-detail-card {
+        background-color: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .provider-header {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        width: 100%;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 20px;
+    }
+
+    .provider-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .provider-name-section h2 {
+        margin: 0;
+        font-size: 28px;
+        color: #333;
+    }
+
+    .provider-service-main {
+        font-size: 20px;
+        color: #007bff;
+        margin-top: 5px;
+    }
+
+    .info-section {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .info-label {
+        font-weight: bold;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .info-value {
+        font-size: 18px;
+        color: #333;
+    }
+
+    .category-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 5px;
+    }
+
+    .category-tag {
+        background-color: #e9ecef;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .request-service-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 20px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: background 0.3s;
+        text-decoration: none;
+        margin-top: 20px;
+    }
+
+    .request-service-btn:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+    }
+</style>
+
+<div class="provider-info-container">
+    <div class="provider-detail-card">
+        <div class="provider-header">
+            <img src="~/image/man.png" alt="Provider Image" class="provider-image">
+            <div class="provider-name-section">
+                <h2>@(Model.User?.FirstName ?? "Unknown") @(Model.User?.LastName ?? "")</h2>
+                <p class="provider-service-main">@Model.Service</p>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <p class="info-label">หมวดหมู่งานที่รับ:</p>
+            <div class="category-tags">
+                @foreach (var cat in Model.Categories)
+                {
+                    <span class="category-tag">@cat.Name</span>
+                }
+                @if (!Model.Categories.Any())
+                {
+                    <span class="category-tag">General</span>
+                }
+            </div>
+        </div>
+
+        <div class="info-section">
+            <p class="info-label">พื้นที่ให้บริการ:</p>
+            <p class="info-value">
+                @Model.Address
+                <br/>
+                @(Model.Subdistrict?.name_th ?? "-"), @(Model.District?.NameTh ?? "-"), @(Model.Province?.NameTh ?? "-")
+            </p>
+        </div>
+
+        <a href="#" class="request-service-btn">ขอใช้บริการ (Coming Soon)</a>
+    </div>
+</div>
+

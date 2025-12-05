@@ -188,5 +188,25 @@ namespace ChangOnline.Controllers
                 .ToList();
             return Json(subdistricts);
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ProviderInfo(int id)
+        {
+            var provider = await _context.ProviderProfiles
+                .Include(p => p.User)
+                .Include(p => p.Categories)
+                .Include(p => p.Province)
+                .Include(p => p.District)
+                .Include(p => p.Subdistrict)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (provider == null)
+            {
+                return NotFound();
+            }
+
+            return View("~/Views/Provider/ProviderInfo.cshtml", provider);
+        }
     }
 }

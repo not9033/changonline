@@ -1,61 +1,10 @@
-﻿@{
+﻿@model ChangOnline.Models.ViewModels.AllProviderViewModel
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <style>
-/* ===== ปรับปุ่มค้นหา ===== */
-.search-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-}
 
-.search-box {
-    padding: 15px 20px;
-    font-size: 20px;
-    border-radius: 50px;
-    border: 2px solid #007bff;
-    width: 400px;
-    outline: none;
-}
-
-.btn-search {
-    padding: 15px 40px;
-    font-size: 22px;
-    border-radius: 50px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-search:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
-}
-
-/* ===== ปรับ category list นิดหน่อย ===== */
-.category-list {
-    margin-top: 20px;
-    list-style: none;
-    padding-left: 0;
-}
-
-.category-sub-item {
-    padding: 8px 0;
-}
-
-.category-sub-item a {
-    text-decoration: none;
-    color: #007bff;
-}
-
-.category-sub-item a:hover {
-    text-decoration: underline;
-}
 </style>
 
 <div class="banner">
@@ -64,9 +13,10 @@
             <p style="font-size: 70px">มีทุกช่าง ครบจบที่นี่</p>
             <p style="font-size: 40px">ถามหาช่างถามหาเรา</p>
         </div>
-        <form method="post" asp-controller="Home" asp-action="search">
+        @* asp-controller="Home" asp-action="search" *@
+        <form method="get" action="@Url.Action("Index", "AllProvider")">
             <div class="search-container">
-                <input type="text" name="search" class="search-box" placeholder="ค้นหาช่างที่นี่" />
+                <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="ค้นหาช่างที่นี่" class="search-box">
                 <button type="submit" class="btn-search">ค้นหา</button>
             </div>
         </form>
@@ -82,7 +32,7 @@
         </div>
 
         <div class="category-item" data-subcategories='[
-            "เดินไฟภายในบ้าน",
+            "เดินไฟภายนอกบ้าน",
             "เดินไฟร้านค้า",
             "แก้ไฟช๊อต",
             "แก้ไฟตก/ไฟกระชาก",
@@ -95,7 +45,7 @@
             <a href="javascript:void(0)" class="main-category">ช่างไฟฟ้า</a>
         </div>
 
-        <div class="category-item" data-subcategories='["ซ่อมเครื่องจักร","ติดตั้งเครื่องกล","งานบำรุงรักษาเครื่องกล","งานนิวเมติก","งานไฮดรอลิก","ติดตั้งท่อลม","ระบบ HVAC","ซ่อมปั๊มลม"]'>
+        <div class="category-item" data-subcategories='["ซ่อมเครื่องจักรโรงงาน","ติดตั้งเครื่องกล","งานบำรุงรักษาเครื่องกล","งานนิวเมติก","งานไฮดรอลิก","ติดตั้งท่อลม","ระบบ HVAC","ซ่อมปั๊มลม"]'>
             <img src="~/image/man.png" alt="">
             <a href="javascript:void(0)" class="main-category">ช่างเครื่องกล</a>
         </div>
@@ -161,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function() {
             subs.forEach(sub => {
                 const li = document.createElement("li");
                 li.className = "category-sub-item";
-                li.innerHTML = `<a href="#">${sub}</a>`;
+                li.innerHTML = `<a href="/AllProvider?category=${encodeURIComponent(sub)}">${sub}</a>`;
                 categoryList.appendChild(li);
             });
         });

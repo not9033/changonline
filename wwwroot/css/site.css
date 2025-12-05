@@ -294,3 +294,58 @@ ul {
     text-align: center;
     background-color: #e2dede;
 }
+
+
+/* ===== ปรับปุ่มค้นหา ===== */
+.search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.search-box {
+    padding: 15px 20px;
+    font-size: 20px;
+    border-radius: 50px;
+    border: 2px solid #007bff;
+    width: 400px;
+    outline: none;
+}
+
+.btn-search {
+    padding: 15px 40px;
+    font-size: 22px;
+    border-radius: 50px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* ===== ปรับ category list นิดหน่อย ===== */
+.category-list {
+    margin-top: 20px;
+    list-style: none;
+    padding-left: 0;
+}
+
+.category-sub-item {
+    padding: 8px 0;
+}
+
+.category-sub-item a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.category-sub-item a:hover {
+    text-decoration: underline;
+}

@@ -1,77 +1,184 @@
+@model ChangOnline.Models.ViewModels.AllProviderViewModel
 @{
     ViewData["Title"] = "All Provider";
 }
+
 
 <div class="all-provider-container">
     <div class="all-provider-header" style="margin-top: 26px;">
         <div class="all-provider-title">
             <p>ช่างทั้งหมด</p>
         </div>
-        <div class="search-group">
-            <input type="text" placeholder="ค้นหาช่างที่นี่">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="custom-alert alert-success-custom">@TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="custom-alert alert-error-custom">@TempData["ErrorMessage"]</div>
+        }
+        <form method="get" action="@Url.Action("Index", "AllProvider")" class="search-group">
+            <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="ค้นหาช่างที่นี่">
             <button type="submit">ค้นหา</button>
             <div class="filter">
-                <button type="submit">ตัวกรอง</button>
+                <button type="button">ตัวกรอง</button>
             </div>
             <div class="sort">
-                <button type="submit">เรียง</button>
+                <button type="button">เรียง</button>
             </div>
-        </div>
+        </form>
     </div>
     <div class="all-provider-list">
-        <div class="provider-card">
-            <div class="provider-card-info">
-                <img src="~/image/man.png" alt="">
-                <div class="provider-card-info-text">
-                    <p class="provider-card-name">นายสมชาย ใจดี</p>
-                    <p class="provider-card-category">ช่างก่อสร้าง</p>
+        @foreach (var provider in Model.Providers)
+        {
+            <div class="provider-card">
+                <div class="provider-card-info">
+                    <img src="~/image/man.png" alt="">
+                    <div class="provider-card-info-text">
+                        <p class="provider-card-name">@(provider.User?.FirstName ?? "Unknown") @(provider.User?.LastName ?? "")</p>
+                        <p class="provider-card-category">@provider.Service</p>
+                    </div>
+                </div>
+                <div class="provider-card-button">
+                    <a asp-controller="Provider" asp-action="ProviderInfo" asp-route-id="@provider.Id" class="detail-btn">รายละเอียด</a>
+                    <button type="button" class="request-btn" onclick="openModal(@provider.Id)">ขอใช้บริการ</button>
                 </div>
             </div>
-            <div class="provider-card-button">
-                <button type="submit" class="detail-btn">รายละเอียด</button>
-                <button type="submit" class="request-btn">ขอใช้บริการ</button>
-            </div>
-        </div>
-        <div class="provider-card">
-            <div class="provider-card-info">
-                <img src="~/image/man.png" alt="">
-                <div class="provider-card-info-text">
-                    <p class="provider-card-name">นายสมชาย ใจดี</p>
-                    <p class="provider-card-category">ช่างก่อสร้าง</p>
-                </div>
-            </div>
-            <div class="provider-card-button">
-                <button type="submit" class="detail-btn">รายละเอียด</button>
-                <button type="submit" class="request-btn">ขอใช้บริการ</button>
-            </div>
-        </div>
-        <div class="provider-card">
-            <div class="provider-card-info">
-                <img src="~/image/man.png" alt="">
-                <div class="provider-card-info-text">
-                    <p class="provider-card-name">นายสมชาย ใจดี</p>
-                    <p class="provider-card-category">ช่างก่อสร้าง</p>
-                </div>
-            </div>
-            <div class="provider-card-button">
-                <button type="submit" class="detail-btn">รายละเอียด</button>
-                <button type="submit" class="request-btn">ขอใช้บริการ</button>
-            </div>
-        </div>
-        <div class="provider-card">
-            <div class="provider-card-info">
-                <img src="~/image/man.png" alt="">
-                <div class="provider-card-info-text">
-                    <p class="provider-card-name">นายสมชาย ใจดี</p>
-                    <p class="provider-card-category">ช่างก่อสร้าง</p>
-                </div>
-            </div>
-            <div class="provider-card-button">
-                <button type="submit" class="detail-btn">รายละเอียด</button>
-                <button type="submit" class="request-btn">ขอใช้บริการ</button>
-            </div>
-        </div>
-      
+        }
     </div>
-    
+
+    <!-- Pagination -->
+    <div class="pagination-container" style="display: flex; justify-content: center; margin-top: 20px; gap: 10px;">
+        @if (Model.TotalPages > 1)
+        {
+            @if (Model.CurrentPage > 1)
+            {
+                <a href="@Url.Action("Index", "AllProvider", new { page = Model.CurrentPage - 1, searchTerm = Model.SearchTerm, category = Model.Category })" class="pagination-btn">Previous</a>
+            }
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <a href="@Url.Action("Index", "AllProvider", new { page = i, searchTerm = Model.SearchTerm, category = Model.Category })" class="pagination-btn @(i == Model.CurrentPage ? "active" : "")">@i</a>
+            }
+
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                <a href="@Url.Action("Index", "AllProvider", new { page = Model.CurrentPage + 1, searchTerm = Model.SearchTerm, category = Model.Category })" class="pagination-btn">Next</a>
+            }
+        }
+    </div>
 </div>
+
+<!-- Custom Service Request Modal -->
+<div id="serviceRequestModalOverlay" class="custom-modal-overlay">
+    <div class="custom-modal-content">
+        <form method="post" action="@Url.Action("Create", "ServiceRequest")" enctype="multipart/form-data">
+            <div class="custom-modal-header">
+                <h5 class="custom-modal-title">ขอใช้บริการ</h5>
+                <button type="button" class="close-modal-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="custom-modal-body">
+                <input type="hidden" name="ProviderId" id="modalProviderId"/>
+
+                <div class="custom-form-group">
+                    <label class="custom-form-label">รายละเอียดงาน</label>
+                    <textarea class="custom-form-control" name="JobDetails" required rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">วันที่สะดวก</label>
+                        <input type="date" class="custom-form-control" name="AppointmentDate" required/>
+                    </div>
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">เบอร์โทรศัพท์ติดต่อ</label>
+                        <input type="tel" class="custom-form-control" name="ContactNumber" required/>
+                    </div>
+                </div>
+
+                <div class="custom-form-group">
+                    <label class="custom-form-label">ที่อยู่</label>
+                    <input type="text" class="custom-form-control" name="Address" required/>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">จังหวัด</label>
+                        <select class="custom-form-select" name="ProvinceId" id="modalProvinceSelect" required>
+                            <option value="">-- เลือกจังหวัด --</option>
+                            @foreach (var item in Model.Provinces)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">อำเภอ/เขต</label>
+                        <select class="custom-form-select" name="DistrictId" id="modalDistrictSelect" required>
+                            <option value="">-- เลือกอำเภอ --</option>
+                        </select>
+                    </div>
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">ตำบล/แขวง</label>
+                        <select class="custom-form-select" name="SubdistrictId" id="modalSubdistrictSelect" required>
+                            <option value="">-- เลือกตำบล --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="custom-form-group">
+                    <input type="hidden" class="custom-form-control" name="Remarks"/>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="custom-btn btn-cancel" onclick="closeModal()">ยกเลิก</button>
+                <button type="submit" class="custom-btn btn-submit">ส่งคำขอ</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(providerId) {
+        document.getElementById('modalProviderId').value = providerId;
+        document.getElementById('serviceRequestModalOverlay').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('serviceRequestModalOverlay').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        var modal = document.getElementById('serviceRequestModalOverlay');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Cascading Dropdowns using ProviderController APIs
+        $('#modalProvinceSelect').change(function () {
+            var provinceId = $(this).val();
+            $.getJSON('@Url.Action("GetDistricts", "Provider")', { provinceId: provinceId }, function (data) {
+                var items = '<option value="">-- เลือกอำเภอ --</option>';
+                $.each(data, function (i, district) {
+                    items += "<option value='" + district.id + "'>" + district.name + "</option>";
+                });
+                $('#modalDistrictSelect').html(items);
+                $('#modalSubdistrictSelect').html('<option value="">-- เลือกตำบล --</option>');
+            });
+        });
+
+        $('#modalDistrictSelect').change(function () {
+            var districtId = $(this).val();
+            $.getJSON('@Url.Action("GetSubdistricts", "Provider")', { districtId: districtId }, function (data) {
+                var items = '<option value="">-- เลือกตำบล --</option>';
+                $.each(data, function (i, subdistrict) {
+                    items += "<option value='" + subdistrict.id + "'>" + subdistrict.name + "</option>";
+                });
+                $('#modalSubdistrictSelect').html(items);
+            });
+        });
+    });
+</script>
