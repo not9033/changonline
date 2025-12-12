@@ -17,7 +17,7 @@ namespace ChangOnline.Controllers
 
         public async Task<IActionResult> Index(string? searchTerm, string? category, int page = 1)
         {
-            int pageSize = 8; // จำนวนที่เเสดงต่อหน้า
+            int pageSize = 10; // จำนวนที่เเสดงต่อหน้า
 
             var query = _context.ProviderProfiles
                 .Include(p => p.User)

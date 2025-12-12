@@ -37,7 +37,7 @@
             <div class="nav-item">
                 @if (SignInManager.IsSignedIn(User))
                 {
-                    <a asp-area="" asp-controller="Home" asp-action="" class="text-decoration-none text-reset">การเรียกใช้บริการของฉัน</a>
+                    <a asp-area="" asp-controller="Home" asp-action="MyServiceRequest" class="text-decoration-none text-reset">การเรียกใช้บริการของฉัน</a>
                     <a asp-area="" asp-controller="Provider" asp-action="Register" class="text-decoration-none text-reset">สมัครเป็นช่าง</a>
                     <a asp-area="" asp-controller="Account" asp-action="Profile" class="text-decoration-none text-reset">ข้อมูลส่วนตัว</a>
                 }

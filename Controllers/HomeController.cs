@@ -23,6 +23,11 @@ namespace ChangOnline.Controllers
         {
             return RedirectToAction("Index", "AllProvider");
         }
+        public IActionResult MyServiceRequest()
+        {
+            
+            return View("MyServiceRequest");
+        }
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
