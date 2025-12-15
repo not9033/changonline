@@ -88,6 +88,8 @@
     transform: translate(-50%, -50%);
     background-color: #f2f2f2;
     padding: 20px;
+    width: 500px;
+    height: auto;
     border-radius: 15px;
     box-shadow: 0px 0px 10px rgba(125, 122, 122, 0.3);
 }
@@ -105,4 +107,52 @@
     color: #196BA4;
     font-size: 24px;
     text-align: center;
+}
+
+.custom-modal-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.custom-modal-body{
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    
+    
+    
+}
+.custom-form-group{
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    margin: auto;
+    margin-bottom: 15px;
+    color: #196BA4;
+    /* background-color: #4ce41e; */
+}
+.form-row{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+.custom-form-select, .custom-form-control{
+    color: #196BA4;
+}
+
+
+.job-detail-form-group{
+    width: 90%;
+}
+
+.modal-footer{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
 }

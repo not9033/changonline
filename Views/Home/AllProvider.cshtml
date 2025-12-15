@@ -9,14 +9,14 @@
         <div class="all-provider-title">
             <p>ช่างทั้งหมด</p>
         </div>
-        @if (TempData["SuccessMessage"] != null)
+        @* @if (TempData["SuccessMessage"] != null)
         {
             <div class="custom-alert alert-success-custom">@TempData["SuccessMessage"]</div>
         }
         @if (TempData["ErrorMessage"] != null)
         {
             <div class="custom-alert alert-error-custom">@TempData["ErrorMessage"]</div>
-        }
+        } *@
         <form method="get" action="@Url.Action("Index", "AllProvider")" class="search-group">
             <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="ค้นหาช่างที่นี่">
             <button type="submit">ค้นหา</button>
@@ -75,33 +75,28 @@
         <form method="post" action="@Url.Action("Create", "ServiceRequest")" enctype="multipart/form-data">
             <div class="custom-modal-header">
                 <h5 class="custom-modal-title">ขอใช้บริการ</h5>
-                <button type="button" class="close-modal-btn" onclick="closeModal()">&times;</button>
+                @* <button type="button" class="close-modal-btn" onclick="closeModal()">&times;</button> *@
+                @if (TempData["SuccessMessage"] != null)
+                {   
+                    <script>
+                        alert("@TempData["SuccessMessage"]");
+                    </script>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <script>
+                        alert("@TempData["ErrorMessage"]");
+                    </script>
+                }
             </div>
             <div class="custom-modal-body">
                 <input type="hidden" name="ProviderId" id="modalProviderId"/>
 
-                <div class="custom-form-group">
-                    <label class="custom-form-label">รายละเอียดงาน</label>
-                    <textarea class="custom-form-control" name="JobDetails" required rows="3"></textarea>
-                </div>
-
                 <div class="form-row">
-                    <div class="form-col custom-form-group">
-                        <label class="custom-form-label">วันที่สะดวก</label>
-                        <input type="date" class="custom-form-control" name="AppointmentDate" required/>
+                    <div class="custom-form-group">
+                        <label class="custom-form-label">ที่อยู่</label>
+                        <input type="text" class="custom-form-control" name="Address" required/>
                     </div>
-                    <div class="form-col custom-form-group">
-                        <label class="custom-form-label">เบอร์โทรศัพท์ติดต่อ</label>
-                        <input type="tel" class="custom-form-control" name="ContactNumber" required/>
-                    </div>
-                </div>
-
-                <div class="custom-form-group">
-                    <label class="custom-form-label">ที่อยู่</label>
-                    <input type="text" class="custom-form-control" name="Address" required/>
-                </div>
-
-                <div class="form-row">
                     <div class="form-col custom-form-group">
                         <label class="custom-form-label">จังหวัด</label>
                         <select class="custom-form-select" name="ProvinceId" id="modalProvinceSelect" required>
@@ -112,6 +107,10 @@
                             }
                         </select>
                     </div>
+                </div>
+
+                <div class="form-row">
+
                     <div class="form-col custom-form-group">
                         <label class="custom-form-label">อำเภอ/เขต</label>
                         <select class="custom-form-select" name="DistrictId" id="modalDistrictSelect" required>
@@ -125,14 +124,27 @@
                         </select>
                     </div>
                 </div>
-
+                <div class="form-row">
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">วันที่สะดวก</label>
+                        <input type="date" class="custom-form-control" name="AppointmentDate" required/>
+                    </div>
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">เบอร์โทรศัพท์ติดต่อ</label>
+                        <input type="tel" class="custom-form-control" name="ContactNumber" required/>
+                    </div>
+                </div>
+                <div class="custom-form-group job-detail-form-group">
+                    <label class="custom-form-label">รายละเอียดงาน</label>
+                    <textarea class="custom-form-control" name="JobDetails" required rows="5"></textarea>
+                </div>
                 <div class="custom-form-group">
                     <input type="hidden" class="custom-form-control" name="Remarks"/>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="custom-btn btn-cancel" onclick="closeModal()">ยกเลิก</button>
-                <button type="submit" class="custom-btn btn-submit">ส่งคำขอ</button>
+                <div class="modal-footer">
+                    <button type="button" class="custom-btn btn-cancel" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="custom-btn btn-submit">ส่งคำขอ</button>
+                </div>
             </div>
         </form>
     </div>
