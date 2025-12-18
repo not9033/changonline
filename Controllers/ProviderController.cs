@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ChangOnline.Models;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChangOnline.Controllers
@@ -13,24 +11,24 @@ namespace ChangOnline.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly ChangOnline.Context.AppDbContext _context;
 
-        public ProviderController(UserManager<AppUser> userManager, ChangOnline.Context.AppDbContext context)
+        public ProviderController(
+            UserManager<AppUser> userManager,
+            ChangOnline.Context.AppDbContext context)
         {
             _userManager = userManager;
             _context = context;
         }
 
+        // ================= สมัครเป็นช่าง =================
         [HttpGet]
         public async Task<IActionResult> Register()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             var model = new Models.ViewModels.ProviderRegisterViewModel();
 
-            // Check if provider profile exists
             var providerProfile = _context.ProviderProfiles
                 .Include(p => p.Categories)
                 .FirstOrDefault(p => p.UserId == user.Id);
@@ -45,168 +43,83 @@ namespace ChangOnline.Controllers
                 model.SelectedCategoryIds = providerProfile.Categories.Select(c => c.Id).ToList();
             }
 
-            model.Categories = _context.ProviderCategories.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name
-            }).ToList();
+            model.Categories = _context.ProviderCategories
+                .Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Name
+                }).ToList();
 
-            model.Provinces = _context.Provinces.Select(p => new SelectListItem
-            {
-                Value = p.ProvinceId.ToString(),
-                Text = p.NameTh
-            }).ToList();
-
-            if (model.ProvinceId.HasValue)
-            {
-                model.Districts = _context.Districts.Where(d => d.ProvinceId == model.ProvinceId).Select(d =>
-                    new SelectListItem
-                    {
-                        Value = d.DistrictId.ToString(),
-                        Text = d.NameTh
-                    }).ToList();
-            }
-
-            if (model.DistrictId.HasValue)
-            {
-                model.Subdistricts = _context.Subdistricts.Where(s => s.district_id == model.DistrictId).Select(s =>
-                    new SelectListItem
-                    {
-                        Value = s.subdistrict_id.ToString(),
-                        Text = s.name_th
-                    }).ToList();
-            }
+            model.Provinces = _context.Provinces
+                .Select(p => new SelectListItem
+                {
+                    Value = p.ProvinceId.ToString(),
+                    Text = p.NameTh
+                }).ToList();
 
             return View(model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Register(Models.ViewModels.ProviderRegisterViewModel model)
+        // ================= ดูโปรไฟล์ช่าง =================
+        [HttpGet]
+        public async Task<IActionResult> ProviderInfo(int? id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            ProviderProfile provider;
 
-            if (ModelState.IsValid)
-            {
-                var providerProfile = _context.ProviderProfiles
-                    .Include(p => p.Categories)
-                    .FirstOrDefault(p => p.UserId == user.Id);
+            // if (id.HasValue)
+            // {
+            //     // ดูช่างคนอื่น
+            //     provider = await _context.ProviderProfiles
+            //         .Include(p => p.User)
+            //         .Include(p => p.Categories)
+            //         .Include(p => p.Province)
+            //         .Include(p => p.District)
+            //         .Include(p => p.Subdistrict)
+            //         .FirstOrDefaultAsync(p => p.Id == id.Value);
+            // }
+            // else
+            // {
+            //     // ดูโปรไฟล์ตัวเอง
+            //     var user = await _userManager.GetUserAsync(User);
+            //     if (user == null)
+            //         return RedirectToAction("Login", "Account");
 
-                if (providerProfile == null)
-                {
-                    providerProfile = new ProviderProfile
-                    {
-                        UserId = user.Id
-                    };
-                    _context.ProviderProfiles.Add(providerProfile);
-                }
+            //     provider = await _context.ProviderProfiles
+            //         .Include(p => p.User)
+            //         .Include(p => p.Categories)
+            //         .Include(p => p.Province)
+            //         .Include(p => p.District)
+            //         .Include(p => p.Subdistrict)
+            //         .FirstOrDefaultAsync(p => p.UserId == user.Id);
+            // }
 
-                providerProfile.Service = model.Service;
-                providerProfile.Address = model.Address;
-                providerProfile.ProvinceId = model.ProvinceId;
-                providerProfile.DistrictId = model.DistrictId;
-                providerProfile.SubdistrictId = model.SubdistrictId;
+            // if (provider == null)
+            //     return NotFound();
 
-                // Update Categories
-                providerProfile.Categories.Clear();
-                if (model.SelectedCategoryIds != null && model.SelectedCategoryIds.Any())
-                {
-                    var selectedCategories = _context.ProviderCategories
-                        .Where(c => model.SelectedCategoryIds.Contains(c.Id))
-                        .ToList();
-                    foreach (var category in selectedCategories)
-                    {
-                        providerProfile.Categories.Add(category);
-                    }
-                }
-
-                // Add Provider Role
-                if (!await _userManager.IsInRoleAsync(user, "Provider"))
-                {
-                    await _userManager.AddToRoleAsync(user, "Provider");
-                }
-
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Profile", "Account");
-            }
-
-            // Reload dropdowns if failed
-            model.Categories = _context.ProviderCategories.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name
-            }).ToList();
-
-            // Reload dropdowns if failed
-            model.Provinces = _context.Provinces.Select(p => new SelectListItem
-            {
-                Value = p.ProvinceId.ToString(),
-                Text = p.NameTh
-            }).ToList();
-
-            if (model.ProvinceId.HasValue)
-            {
-                model.Districts = _context.Districts.Where(d => d.ProvinceId == model.ProvinceId).Select(d =>
-                    new SelectListItem
-                    {
-                        Value = d.DistrictId.ToString(),
-                        Text = d.NameTh
-                    }).ToList();
-            }
-
-            if (model.DistrictId.HasValue)
-            {
-                model.Subdistricts = _context.Subdistricts.Where(s => s.district_id == model.DistrictId).Select(s =>
-                    new SelectListItem
-                    {
-                        Value = s.subdistrict_id.ToString(),
-                        Text = s.name_th
-                    }).ToList();
-            }
-
-            return View(model);
+            return View("~/Views/Provider/ProviderInfo.cshtml" );
         }
 
+        // ================= Ajax =================
         [HttpGet]
         public IActionResult GetDistricts(int provinceId)
         {
-            var districts = _context.Districts.Where(d => d.ProvinceId == provinceId)
+            var districts = _context.Districts
+                .Where(d => d.ProvinceId == provinceId)
                 .Select(d => new { id = d.DistrictId, name = d.NameTh })
                 .ToList();
+
             return Json(districts);
         }
 
         [HttpGet]
         public IActionResult GetSubdistricts(int districtId)
         {
-            var subdistricts = _context.Subdistricts.Where(s => s.district_id == districtId)
+            var subs = _context.Subdistricts
+                .Where(s => s.district_id == districtId)
                 .Select(s => new { id = s.subdistrict_id, name = s.name_th })
                 .ToList();
-            return Json(subdistricts);
-        }
 
-
-        [HttpGet]
-        public async Task<IActionResult> ProviderInfo(int id)
-        {
-            var provider = await _context.ProviderProfiles
-                .Include(p => p.User)
-                .Include(p => p.Categories)
-                .Include(p => p.Province)
-                .Include(p => p.District)
-                .Include(p => p.Subdistrict)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (provider == null)
-            {
-                return NotFound();
-            }
-
-            return View("~/Views/Provider/ProviderInfo.cshtml", provider);
+            return Json(subs);
         }
     }
 }

@@ -5,138 +5,191 @@
 }
 
 <style>
+    body {
+        background: #f5f7fb;
+    }
+
     .provider-info-container {
         display: flex;
         justify-content: center;
-        margin-top: 50px;
+        margin: 50px 0;
         padding: 0 20px;
     }
 
     .provider-detail-card {
-        background-color: white;
-        border-radius: 20px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        padding: 40px;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        padding: 40px 45px;
         width: 100%;
-        max-width: 800px;
+        max-width: 1000px;
+    }
+
+    /* ---------- section header + button ---------- */
+    .section-header {
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
         align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #3b6cb7;
+    }
+
+    .request-btn {
+        background: linear-gradient(90deg, #4f8cff, #ff5c5c);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 8px 22px;
+        font-size: 14px;
+        cursor: pointer;
     }
 
     .provider-header {
         display: flex;
-        align-items: center;
-        gap: 30px;
-        width: 100%;
-        margin-bottom: 30px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 20px;
+        gap: 40px;
+        margin-bottom: 35px;
     }
 
     .provider-image {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
+        width: 150px;
+        height: 150px;
+        background: #e0e0e0;
+        border-radius: 12px;
         object-fit: cover;
     }
 
-    .provider-name-section h2 {
-        margin: 0;
-        font-size: 28px;
-        color: #333;
-    }
-
-    .provider-service-main {
-        font-size: 20px;
-        color: #007bff;
-        margin-top: 5px;
-    }
-
-    .info-section {
+    .provider-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px 30px;
         width: 100%;
-        margin-bottom: 20px;
     }
 
-    .info-label {
-        font-weight: bold;
-        color: #666;
-        margin-bottom: 5px;
+    .form-group {
+        display: flex;
+        flex-direction: column;
     }
 
-    .info-value {
-        font-size: 18px;
-        color: #333;
+    .form-group label {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        border-radius: 999px;
+        border: 2px solid transparent;
+        background:
+            linear-gradient(#fff, #fff) padding-box,
+            linear-gradient(90deg, #4f8cff, #ff5c5c) border-box;
+        padding: 8px 16px;
+        font-size: 14px;
+        height: 40px;
+    }
+
+    .full-width {
+        grid-column: span 2;
     }
 
     .category-tags {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin-top: 5px;
     }
 
     .category-tag {
-        background-color: #e9ecef;
-        padding: 5px 15px;
-        border-radius: 50px;
-        font-size: 14px;
-        color: #495057;
+        background: #eef2ff;
+        color: #3b5bcc;
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 13px;
     }
 
-    .request-service-btn {
-        background-color: #28a745;
-        color: white;
-        border: none;
-        padding: 15px 40px;
-        font-size: 20px;
-        border-radius: 50px;
-        cursor: pointer;
-        transition: background 0.3s;
-        text-decoration: none;
-        margin-top: 20px;
-    }
-
-    .request-service-btn:hover {
-        background-color: #218838;
-        transform: scale(1.05);
+    /* ---------- textarea ให้พอเหมาะ ---------- */
+    textarea.form-control {
+        border-radius: 14px;
+        height: 140px; /* 👈 ลดขนาด */
+        resize: none;
+        padding: 14px 16px;
+        line-height: 1.6;
     }
 </style>
 
 <div class="provider-info-container">
     <div class="provider-detail-card">
+
+        <!-- header + button -->
+        <div class="section-header">
+            <div class="section-title">ข้อมูลช่าง</div>
+            <button class="request-btn">ขอรับบริการ</button>
+        </div>
+
         <div class="provider-header">
-            <img src="~/image/man.png" alt="Provider Image" class="provider-image">
-            <div class="provider-name-section">
-                <h2>@(Model.User?.FirstName ?? "Unknown") @(Model.User?.LastName ?? "")</h2>
-                <p class="provider-service-main">@Model.Service</p>
+            <img src="~/image/man.png" class="provider-image" />
+
+            <div class="provider-form">
+
+                <div class="form-group">
+                    <label>ชื่อ</label>
+                    <input class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>นามสกุล</label>
+                    <input class="form-control" readonly />
+                </div>
+
+                <div class="form-group full-width">
+                    <label>ที่อยู่</label>
+                    <input class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>ตำบล</label>
+                    <input class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>อำเภอ</label>
+                    <input class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>จังหวัด</label>
+                    <input class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>เบอร์โทร</label>
+                    <input class="form-control" readonly />
+                </div>
+
+                <div class="form-group full-width">
+                    <label>ประเภทงาน</label>
+                    <input class="form-control" readonly />
+                </div>
+
+                <!-- คงหมวดหมู่เดิม -->
+                <div class="form-group full-width">
+                    <label>หมวดหมู่งานที่รับ</label>
+                    <div class="category-tags">
+                        @* ของเดิม *@
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <div class="info-section">
-            <p class="info-label">หมวดหมู่งานที่รับ:</p>
-            <div class="category-tags">
-                @foreach (var cat in Model.Categories)
-                {
-                    <span class="category-tag">@cat.Name</span>
-                }
-                @if (!Model.Categories.Any())
-                {
-                    <span class="category-tag">General</span>
-                }
-            </div>
-        </div>
+        <div class="section-title">รายละเอียดและอัตราค่าบริการ</div>
 
-        <div class="info-section">
-            <p class="info-label">พื้นที่ให้บริการ:</p>
-            <p class="info-value">
-                @Model.Address
-                <br/>
-                @(Model.Subdistrict?.name_th ?? "-"), @(Model.District?.NameTh ?? "-"), @(Model.Province?.NameTh ?? "-")
-            </p>
-        </div>
+        <textarea class="form-control" readonly>
+ยังไม่มีรายละเอียดเพิ่มเติม
+        </textarea>
 
-        <a href="#" class="request-service-btn">ขอใช้บริการ (Coming Soon)</a>
     </div>
 </div>
-
