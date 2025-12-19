@@ -1,3 +1,5 @@
+@model IEnumerable<ChangOnline.Models.ServiceRequest>
+
 @{
     ViewData["Title"] = "การเรียกใช้บริการของฉัน";
 }
@@ -42,6 +44,7 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         display: flex;
         align-items: center;
+        margin-bottom: 20px;
     }
 
     .profile-placeholder {
@@ -75,6 +78,19 @@
         /* ทำให้ต่ำลงกว่าเดิม */
         margin-top: 40px;
     }
+
+    .no-requests {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+        font-size: 16px;
+    }
+
+    .status-pending { color: #ff9800; font-weight: bold; }
+    .status-accepted { color: #204c9e; font-weight: bold; }
+    .status-rejected { color: #f44336; font-weight: bold; }
+    .status-completed { color: #4caf50; font-weight: bold; }
+    .status-cancelled { color: #9e9e9e; font-weight: bold; }
 </style>
 
 
@@ -82,26 +98,77 @@
 
     <div class="section-title">การเรียกใช้บริการของฉัน</div>
 
-    <div class="service-box">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var request in Model)
+        {
+            var statusText = request.Status switch
+            {
+                ChangOnline.Models.ServiceRequestStatus.Pending => "รอการตอบรับ",
+                ChangOnline.Models.ServiceRequestStatus.Accepted => "ได้รับการตอบรับ",
+                ChangOnline.Models.ServiceRequestStatus.Rejected => "ถูกปฏิเสธ",
+                ChangOnline.Models.ServiceRequestStatus.Completed => "เสร็จสิ้น",
+                ChangOnline.Models.ServiceRequestStatus.Cancelled => "ยกเลิกแล้ว",
+                _ => "ไม่ทราบสถานะ"
+            };
 
-        <div class="profile-placeholder"></div>
+            var statusClass = request.Status switch
+            {
+                ChangOnline.Models.ServiceRequestStatus.Pending => "status-pending",
+                ChangOnline.Models.ServiceRequestStatus.Accepted => "status-accepted",
+                ChangOnline.Models.ServiceRequestStatus.Rejected => "status-rejected",
+                ChangOnline.Models.ServiceRequestStatus.Completed => "status-completed",
+                ChangOnline.Models.ServiceRequestStatus.Cancelled => "status-cancelled",
+                _ => ""
+            };
 
-        <div class="service-info col-8">
-            <p>
-                <strong>นาย สมชาย ใจดี</strong>
-            </p>
-            <p>เบอร์โทร : 013 - 113 - 1130</p>
-            <p>สถานะ : <span style="color:#204c9e; font-weight:bold;">กำลังเดินทาง</span></p>
+            <div class="service-box">
+
+                <div class="profile-placeholder"></div>
+
+                <div class="service-info col-8">
+                    <p>
+                        <strong>@(request.Provider?.User?.FirstName ?? "ไม่ระบุ") @(request.Provider?.User?.LastName ?? "")</strong>
+                    </p>
+                    <p>เบอร์โทร : @(request.Provider?.User?.PhoneNumber ?? "ไม่ระบุ")</p>
+                    <p>วันนัดหมาย : @request.AppointmentDate.ToString("dd/MM/yyyy ")</p>
+                    @* HH:mm *@
+                    <p>สถานะ : <span class="@statusClass">@statusText</span></p>
+                </div>
+
+                <div class="text-end col">
+                    <button class="btn btn-detail" onclick="showDetails(@request.Id)">รายละเอียด</button><br/>
+                    @if (request.Status == ChangOnline.Models.ServiceRequestStatus.Pending ||
+                         request.Status == ChangOnline.Models.ServiceRequestStatus.Accepted)
+                    {
+                        <button class="btn btn-cancel" onclick="cancelRequest(@request.Id)">ยกเลิก</button>
+                    }
+                </div>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="no-requests">
+            <p>ยังไม่มีการเรียกใช้บริการ</p>
         </div>
-
-        <div class="text-end col">
-            <button class="btn btn-detail" data-bs-toggle="modal" data-bs-target="#detailModal">รายละเอียด</button><br/>
-            <button class="btn btn-cancel">ยกเลิก</button>
-        </div>
-
-    </div>
+    }
 
 </div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function showDetails(requestId) {
+        // TODO: Implement detail modal
+        alert('รายละเอียดของคำขอ ID: ' + requestId);
+    }
+
+    function cancelRequest(requestId) {
+        if (confirm('คุณต้องการยกเลิกคำขอนี้หรือไม่?')) {
+            // TODO: Implement cancel functionality
+            alert('ยกเลิกคำขอ ID: ' + requestId);
+        }
+    }
+</script>

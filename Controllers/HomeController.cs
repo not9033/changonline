@@ -2,16 +2,23 @@ using System.Diagnostics;
 using ChangOnline.Models;
 using ChangOnline.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using ChangOnline.Context;
 
 namespace ChangOnline.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly AppDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, AppDbContext context, UserManager<AppUser> userManager)
         {
             _logger = logger;
+            _context = context;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -23,10 +30,23 @@ namespace ChangOnline.Controllers
         {
             return RedirectToAction("Index", "AllProvider");
         }
-        public IActionResult MyServiceRequest()
+
+        public async Task<IActionResult> MyServiceRequest()
         {
-            
-            return View("MyServiceRequest");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var serviceRequests = await _context.ServiceRequests
+                .Include(sr => sr.Provider)
+                .ThenInclude(p => p.User)
+                .Where(sr => sr.RequesterId == user.Id)
+                .OrderByDescending(sr => sr.AppointmentDate)
+                .ToListAsync();
+
+            return View("MyServiceRequest", serviceRequests);
         }
 
 
