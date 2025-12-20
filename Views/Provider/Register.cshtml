@@ -18,7 +18,28 @@
                 </div>
                 <div class="card-body">
                     <p>กรุณากรอกข้อมูลเพื่อสมัครเป็นช่างในระบบ</p>
-                    <form asp-action="Register" method="post">
+                    <form asp-action="Register" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Image Upload Section -->
+                        <div class="mb-4 text-center">
+                            <div class="mb-3">
+                                <img id="imagePreview" src="@(string.IsNullOrEmpty(Model.CurrentImagePath) ? "/image/man.png" : Model.CurrentImagePath)"
+                                     alt="Profile Image"
+                                     style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; border: 2px solid #ddd;">
+                            </div>
+                            <input type="file" id="profileImageInput" name="ProfileImage" accept="image/*" style="display: none;">
+                            <button type="button" class="btn btn-primary btn-sm me-2" onclick="document.getElementById('profileImageInput').click()">
+                                <i class="fas fa-upload"></i> เปลี่ยนรูปภาพ
+                            </button>
+                            @if (!string.IsNullOrEmpty(Model.CurrentImagePath) && Model.CurrentImagePath != "/image/man.png")
+                            {
+                                <button type="button" class="btn btn-danger btn-sm" id="deleteImageBtn">
+                                    <i class="fas fa-trash"></i> ลบรูปภาพ
+                                </button>
+                            }
+                            <span asp-validation-for="ProfileImage" class="text-danger d-block mt-2"></span>
+                        </div>
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                         <div class="mb-3">
@@ -197,6 +218,41 @@
             if ($('.category-checkbox:checked').length > 0) {
                  $('#saveCategoriesBtn').click();
             }
+
+            // Image preview functionality
+            $('#profileImageInput').change(function(e) {
+                var file = e.target.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#imagePreview').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Delete image functionality
+            $('#deleteImageBtn').click(function() {
+                if (confirm('คุณต้องการลบรูปภาพนี้หรือไม่?')) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteImage", "Provider")',
+                        type: 'POST',
+                        success: function(response) {
+                            if (response.success) {
+                                $('#imagePreview').attr('src', '/image/man.png');
+                                $('#deleteImageBtn').hide();
+                                alert(response.message);
+                                location.reload();
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function() {
+                            alert('เกิดข้อผิดพลาดในการลบรูปภาพ');
+                        }
+                    });
+                }
+            });
         });
     </script>
 }

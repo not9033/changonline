@@ -43,6 +43,7 @@ namespace ChangOnline.Controllers
                 model.DistrictId = providerProfile.DistrictId;
                 model.SubdistrictId = providerProfile.SubdistrictId;
                 model.SelectedCategoryIds = providerProfile.Categories.Select(c => c.Id).ToList();
+                model.CurrentImagePath = providerProfile.ImagePath;
             }
 
             model.Categories = _context.ProviderCategories.Select(c => new SelectListItem
@@ -121,6 +122,87 @@ namespace ChangOnline.Controllers
                     {
                         providerProfile.Categories.Add(category);
                     }
+                }
+
+                // Handle image upload
+                if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+                {
+                    // Validate file type
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                    var fileExtension = Path.GetExtension(model.ProfileImage.FileName).ToLowerInvariant();
+
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        ModelState.AddModelError("ProfileImage",
+                            "กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น (jpg, jpeg, png, gif)");
+                        // Reload dropdowns and return view
+                        model.Categories = _context.ProviderCategories.Select(c => new SelectListItem
+                        {
+                            Value = c.Id.ToString(),
+                            Text = c.Name
+                        }).ToList();
+                        model.Provinces = _context.Provinces.Select(p => new SelectListItem
+                        {
+                            Value = p.ProvinceId.ToString(),
+                            Text = p.NameTh
+                        }).ToList();
+                        return View(model);
+                    }
+
+                    // Validate file size (max 5MB)
+                    if (model.ProfileImage.Length > 5 * 1024 * 1024)
+                    {
+                        ModelState.AddModelError("ProfileImage", "ขนาดไฟล์ต้องไม่เกิน 5MB");
+                        // Reload dropdowns and return view
+                        model.Categories = _context.ProviderCategories.Select(c => new SelectListItem
+                        {
+                            Value = c.Id.ToString(),
+                            Text = c.Name
+                        }).ToList();
+                        model.Provinces = _context.Provinces.Select(p => new SelectListItem
+                        {
+                            Value = p.ProvinceId.ToString(),
+                            Text = p.NameTh
+                        }).ToList();
+                        return View(model);
+                    }
+
+                    // Delete old image if exists (except default)
+                    if (!string.IsNullOrEmpty(providerProfile.ImagePath) &&
+                        providerProfile.ImagePath != "/image/man.png")
+                    {
+                        var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot",
+                            providerProfile.ImagePath.TrimStart('/'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    // Create uploads directory if it doesn't exist
+                    var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "providers");
+                    if (!Directory.Exists(uploadsDir))
+                    {
+                        Directory.CreateDirectory(uploadsDir);
+                    }
+
+                    // Generate unique filename
+                    var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
+                    var filePath = Path.Combine(uploadsDir, uniqueFileName);
+
+                    // Save file
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ProfileImage.CopyToAsync(stream);
+                    }
+
+                    // Update image path
+                    providerProfile.ImagePath = $"/uploads/providers/{uniqueFileName}";
+                }
+                else if (string.IsNullOrEmpty(providerProfile.ImagePath))
+                {
+                    // Set default image if no image uploaded and no existing image
+                    providerProfile.ImagePath = "/image/man.png";
                 }
 
                 // Add Provider Role
@@ -207,6 +289,46 @@ namespace ChangOnline.Controllers
             }
 
             return View("~/Views/Provider/ProviderInfo.cshtml", provider);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteImage()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "กรุณาเข้าสู่ระบบ" });
+            }
+
+            var providerProfile = _context.ProviderProfiles.FirstOrDefault(p => p.UserId == user.Id);
+            if (providerProfile == null)
+            {
+                return Json(new { success = false, message = "ไม่พบข้อมูลช่าง" });
+            }
+
+            // Delete old image if exists (except default)
+            if (!string.IsNullOrEmpty(providerProfile.ImagePath) &&
+                providerProfile.ImagePath != "/image/man.png")
+            {
+                var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot",
+                    providerProfile.ImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+            }
+
+            // Reset to default image
+            providerProfile.ImagePath = "/image/man.png";
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "ลบรูปภาพสำเร็จ" });
+        }
+
+        [HttpGet]
+        public IActionResult ForProviderPage()
+        {
+            return View();
         }
     }
 }

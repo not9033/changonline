@@ -15,6 +15,8 @@ namespace ChangOnline.Models
 
         [Required] public string Address { get; set; }
 
+        public string? ImagePath { get; set; }
+
         public int? ProvinceId { get; set; }
         public int? DistrictId { get; set; }
         public int? SubdistrictId { get; set; }

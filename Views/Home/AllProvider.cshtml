@@ -33,7 +33,7 @@
         {
             <div class="provider-card">
                 <div class="provider-card-info">
-                    <img src="~/image/man.png" alt="">
+                    <img src="@(string.IsNullOrEmpty(provider.ImagePath) ? "/image/man.png" : provider.ImagePath)" alt="">
                     <div class="provider-card-info-text">
                         <p class="provider-card-name">@(provider.User?.FirstName ?? "Unknown") @(provider.User?.LastName ?? "")</p>
                         <p class="provider-card-category">@provider.Service</p>
@@ -77,9 +77,9 @@
                 <h5 class="custom-modal-title">ขอใช้บริการ</h5>
                 @* <button type="button" class="close-modal-btn" onclick="closeModal()">&times;</button> *@
                 @if (TempData["SuccessMessage"] != null)
-                {   
+                {
                     <script>
-                        alert("@TempData["SuccessMessage"]");
+                        alert("Success");
                     </script>
                 }
                 @if (TempData["ErrorMessage"] != null)

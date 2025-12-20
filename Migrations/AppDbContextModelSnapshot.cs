@@ -168,6 +168,9 @@ namespace ChangOnline.Migrations
                     b.Property<int?>("DistrictId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("ProvinceId")
                         .HasColumnType("int");
 

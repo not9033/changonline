@@ -1,10 +1,14 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace ChangOnline.Models.ViewModels
 {
     public class ProviderRegisterViewModel
     {
+        public IFormFile? ProfileImage { get; set; }
+        public string? CurrentImagePath { get; set; }
+
         [Required(ErrorMessage = "กรุณากรอกข้อมูลบริการ")]
         [Display(Name = "บริการ")]
         public string Service { get; set; }
