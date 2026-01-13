@@ -14,5 +14,7 @@ namespace ChangOnline.Models.ViewModels
 
         public List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Provinces { get; set; } =
             new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+
+        public List<ProviderReview> RandomReviews { get; set; } = new List<ProviderReview>();
     }
 }

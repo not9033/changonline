@@ -1,0 +1,145 @@
+.main-container {
+    display: flex;
+}
+
+.sidebar {
+    width: 15%;
+    background-color: #f4f4f4;
+    min-height: 90vh;
+}
+
+.content {
+    width: 85%;
+    background-color: #f8f9fa;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 30px;
+}
+
+.sidebar-content {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-item {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.sidebar-item:hover {
+    background-color: #ddd;
+}
+
+.sidebar-item a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+/* Profile Card Styles */
+.profile-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.profile-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #eef2f7;
+}
+
+.profile-image-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-name h3 {
+    margin: 0;
+    font-size: 22px;
+    color: #333;
+}
+
+.profile-name .text-muted {
+    margin: 5px 0 0 0;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.profile-details {
+    margin-bottom: 30px;
+}
+
+.detail-row {
+    display: flex;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #555;
+    width: 150px;
+    flex-shrink: 0;
+}
+
+.detail-value {
+    color: #333;
+    flex: 1;
+}
+
+.profile-actions {
+    text-align: center;
+    padding-top: 20px;
+}
+
+.btn-edit {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.btn-edit:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+.btn-edit i {
+    margin-right: 8px;
+}

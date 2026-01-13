@@ -48,6 +48,9 @@ namespace ChangOnline.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -196,6 +199,40 @@ namespace ChangOnline.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ProviderProfiles");
+                });
+
+            modelBuilder.Entity("ChangOnline.Models.ProviderReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReviewerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProviderId");
+
+                    b.HasIndex("ReviewerId");
+
+                    b.ToTable("ProviderReviews");
                 });
 
             modelBuilder.Entity("ChangOnline.Models.Province", b =>
@@ -481,6 +518,25 @@ namespace ChangOnline.Migrations
                     b.Navigation("Subdistrict");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ChangOnline.Models.ProviderReview", b =>
+                {
+                    b.HasOne("ChangOnline.Models.ProviderProfile", "Provider")
+                        .WithMany()
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChangOnline.Models.AppUser", "Reviewer")
+                        .WithMany()
+                        .HasForeignKey("ReviewerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Provider");
+
+                    b.Navigation("Reviewer");
                 });
 
             modelBuilder.Entity("ChangOnline.Models.ServiceRequest", b =>

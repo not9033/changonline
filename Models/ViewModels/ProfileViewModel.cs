@@ -26,6 +26,9 @@ namespace ChangOnline.Models.ViewModels
 
         [Display(Name = "Subdistrict")] public int? SubdistrictId { get; set; }
 
+        // Profile Image
+        public string? ImagePath { get; set; }
+
         // Provider Specific
         public bool IsProvider { get; set; }
 
@@ -35,6 +38,8 @@ namespace ChangOnline.Models.ViewModels
         public int? ProviderProvinceId { get; set; }
         public int? ProviderDistrictId { get; set; }
         public int? ProviderSubdistrictId { get; set; }
+
+        public string? ProviderImagePath { get; set; }
 
         public string? ProvinceName { get; set; }
         public string? DistrictName { get; set; }

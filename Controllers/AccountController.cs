@@ -41,6 +41,7 @@ namespace ChangOnline.Controllers
                 ProvinceId = user.ProvinceId,
                 DistrictId = user.DistrictId,
                 SubdistrictId = user.SubdistrictId,
+                ImagePath = user.ImagePath,
                 IsProvider = await _userManager.IsInRoleAsync(user, "Provider")
             };
 
@@ -57,6 +58,7 @@ namespace ChangOnline.Controllers
                     model.ProviderProvinceId = providerProfile.ProvinceId;
                     model.ProviderDistrictId = providerProfile.DistrictId;
                     model.ProviderSubdistrictId = providerProfile.SubdistrictId;
+                    model.ProviderImagePath = providerProfile.ImagePath;
                     model.ProviderCategoryNames = providerProfile.Categories.Select(c => c.Name).ToList();
 
                     if (providerProfile.ProvinceId.HasValue)
@@ -423,6 +425,97 @@ namespace ChangOnline.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadProfileImage(IFormFile profileImage)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "กรุณาเข้าสู่ระบบ" });
+            }
+
+            if (profileImage == null || profileImage.Length == 0)
+            {
+                return Json(new { success = false, message = "กรุณาเลือกรูปภาพ" });
+            }
+
+            // Validate file type
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var fileExtension = Path.GetExtension(profileImage.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return Json(new { success = false, message = "กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น (jpg, jpeg, png, gif)" });
+            }
+
+            // Validate file size (max 5MB)
+            if (profileImage.Length > 5 * 1024 * 1024)
+            {
+                return Json(new { success = false, message = "ขนาดไฟล์ต้องไม่เกิน 5MB" });
+            }
+
+            // Delete old image if exists (except default)
+            if (!string.IsNullOrEmpty(user.ImagePath) && user.ImagePath != "/image/man.png")
+            {
+                var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot",
+                    user.ImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+            }
+
+            // Create uploads directory if it doesn't exist
+            var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
+            if (!Directory.Exists(uploadsDir))
+            {
+                Directory.CreateDirectory(uploadsDir);
+            }
+
+            // Generate unique filename
+            var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
+            var filePath = Path.Combine(uploadsDir, uniqueFileName);
+
+            // Save file
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await profileImage.CopyToAsync(stream);
+            }
+
+            // Update image path
+            user.ImagePath = $"/uploads/profiles/{uniqueFileName}";
+            await _userManager.UpdateAsync(user);
+
+            return Json(new { success = true, message = "อัปโหลดรูปภาพสำเร็จ", imagePath = user.ImagePath });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteProfileImage()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "กรุณาเข้าสู่ระบบ" });
+            }
+
+            // Delete old image if exists (except default)
+            if (!string.IsNullOrEmpty(user.ImagePath) && user.ImagePath != "/image/man.png")
+            {
+                var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot",
+                    user.ImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+            }
+
+            // Reset to default image
+            user.ImagePath = "/image/man.png";
+            await _userManager.UpdateAsync(user);
+
+            return Json(new { success = true, message = "ลบรูปภาพสำเร็จ" });
         }
     }
 }

@@ -21,9 +21,23 @@ namespace ChangOnline.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View(new AllProviderViewModel());
+            // Load random reviews (up to 6)
+            var randomReviews = await _context.ProviderReviews
+                .Include(r => r.Reviewer)
+                .Include(r => r.Provider)
+                .Where(r => !string.IsNullOrEmpty(r.Comment))
+                .OrderBy(r => Guid.NewGuid())
+                .Take(6)
+                .ToListAsync();
+
+            var viewModel = new AllProviderViewModel
+            {
+                RandomReviews = randomReviews
+            };
+
+            return View(viewModel);
         }
 
         public IActionResult AllProvider()

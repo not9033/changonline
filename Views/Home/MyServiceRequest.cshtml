@@ -91,6 +91,11 @@
     .status-rejected { color: #f44336; font-weight: bold; }
     .status-completed { color: #4caf50; font-weight: bold; }
     .status-cancelled { color: #9e9e9e; font-weight: bold; }
+
+    .info-label {
+        font-weight: 600;
+        color: #555;
+    }
 </style>
 
 
@@ -122,18 +127,57 @@
                 _ => ""
             };
 
-            <div class="service-box">
+            <div class="service-box"
+                 data-request-id="@request.Id"
+                 data-provider-name="@(request.Provider?.User?.FirstName ?? "") @(request.Provider?.User?.LastName ?? "")"
+                 data-provider-phone="@(request.Provider?.User?.PhoneNumber ?? "")"
+                 data-provider-image="@(request.Provider?.ImagePath ?? "/image/man.png")"
+                 data-appointment="@request.AppointmentDate.ToString("dd/MM/yyyy HH:mm")"
+                 data-address="@request.Address, @request.Subdistrict, @request.District, @request.Province"
+                 data-contact="@request.ContactNumber"
+                 data-job-details="@(request.JobDetails ?? "")"
+                 data-remarks="@(request.Remarks ?? "")"
+                 data-status="@request.Status"
+                 data-status-text="@statusText"
+                 data-status-color="@(request.Status == ChangOnline.Models.ServiceRequestStatus.Pending ? "#ff9800" :
+                                    request.Status == ChangOnline.Models.ServiceRequestStatus.Accepted ? "#204c9e" :
+                                    request.Status == ChangOnline.Models.ServiceRequestStatus.Rejected ? "#f44336" :
+                                    request.Status == ChangOnline.Models.ServiceRequestStatus.Completed ? "#4caf50" : "#9e9e9e")">
 
-                <div class="profile-placeholder"></div>
+                @{
+                    var providerImage = !string.IsNullOrEmpty(request.Provider?.ImagePath)
+                        ? request.Provider.ImagePath
+                        : "/image/man.png";
+                }
+                <img src="@providerImage" alt="Provider"
+                     style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-right: 20px;">
 
                 <div class="service-info col-8">
                     <p>
-                        <strong>@(request.Provider?.User?.FirstName ?? "ไม่ระบุ") @(request.Provider?.User?.LastName ?? "")</strong>
+                        <strong style="font-size: 18px;">@(request.Provider?.User?.FirstName ?? "ไม่ระบุ") @(request.Provider?.User?.LastName ?? "")</strong>
                     </p>
-                    <p>เบอร์โทร : @(request.Provider?.User?.PhoneNumber ?? "ไม่ระบุ")</p>
-                    <p>วันนัดหมาย : @request.AppointmentDate.ToString("dd/MM/yyyy ")</p>
-                    @* HH:mm *@
-                    <p>สถานะ : <span class="@statusClass">@statusText</span></p>
+                    <p>
+                        <span class="info-label">เบอร์โทร:</span> @(request.Provider?.User?.PhoneNumber ?? "ไม่ระบุ")
+                    </p>
+                    <p>
+                        <span class="info-label">วันนัดหมาย:</span> @request.AppointmentDate.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+                    <p><span class="info-label">สถานที่:</span> @request.Address, @request.Subdistrict, @request.District, @request.Province</p>
+                    @if (!string.IsNullOrEmpty(request.JobDetails))
+                    {
+                        <p>
+                            <span class="info-label">รายละเอียดงาน:</span> @request.JobDetails
+                        </p>
+                    }
+                    @if (!string.IsNullOrEmpty(request.Remarks))
+                    {
+                        <p>
+                            <span class="info-label">หมายเหตุ:</span> @request.Remarks
+                        </p>
+                    }
+                    <p>
+                        <span class="info-label">สถานะ:</span> <span class="@statusClass">@statusText</span>
+                    </p>
                 </div>
 
                 <div class="text-end col">
@@ -157,18 +201,19 @@
 
 </div>
 
+<!-- Detail Modal -->
+<div id="detailModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div style="background-color: white; margin: 5% auto; padding: 0; width: 90%; max-width: 600px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+        <div style="padding: 20px 25px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+            <h5 style="margin: 0; font-size: 20px; font-weight: 600;">รายละเอียดคำขอบริการ</h5>
+            <button onclick="closeDetailModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280;">&times;</button>
+        </div>
+        <div id="modalContent" style="padding: 25px; max-height: 70vh; overflow-y: auto;">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    function showDetails(requestId) {
-        // TODO: Implement detail modal
-        alert('รายละเอียดของคำขอ ID: ' + requestId);
-    }
-
-    function cancelRequest(requestId) {
-        if (confirm('คุณต้องการยกเลิกคำขอนี้หรือไม่?')) {
-            // TODO: Implement cancel functionality
-            alert('ยกเลิกคำขอ ID: ' + requestId);
-        }
-    }
-</script>
+<script src="~/js/myservicerequest.js"></script>

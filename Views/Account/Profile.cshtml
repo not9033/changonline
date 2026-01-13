@@ -17,6 +17,25 @@
                     <h3 class="mb-0">My Profile</h3>
                 </div>
                 <div class="card-body">
+                    <!-- Profile Image Section -->
+                    <div class="text-center mb-4">
+                        <h5 class="mb-3">รูปโปรไฟล์ส่วนตัว</h5>
+                        @{
+                            var userImage = !string.IsNullOrEmpty(Model.ImagePath)
+                                ? Model.ImagePath
+                                : "/image/man.png";
+                        }
+                        <img id="userProfileImage" src="@userImage" alt="User Profile"
+                             style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #dee2e6;">
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#userImageModal">
+                                <i class="bi bi-camera"></i> เปลี่ยนรูปส่วนตัว
+                            </button>
+                        </div>
+                    </div>
+
+                    
+
                     <div class="row mb-3">
                         <div class="col-sm-3 fw-bold">Username:</div>
                         <div class="col-sm-9">@Model.UserName</div>
@@ -57,7 +76,22 @@
 
                     @if (Model.IsProvider)
                     {
-                        <hr/>
+                            <hr>
+                        <div class="text-center mb-4 pb-4 border-bottom">
+                                <h5 class="mb-3">รูปโปรไฟล์ช่าง</h5>
+                                @{
+                                    var providerImage = !string.IsNullOrEmpty(Model.ProviderImagePath)
+                                        ? Model.ProviderImagePath
+                                        : "/image/man.png";
+                                }
+                                <img id="providerProfileImage" src="@providerImage" alt="Provider Profile"
+                                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #dee2e6;">
+                                <div class="mt-2">
+                                    <a href="@Url.Action("Register", "Provider")" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-pencil"></i> แก้ไขโปรไฟล์ช่าง
+                                    </a>
+                                </div>
+                            </div>
                         <h4 class="mb-3 text-primary">Provider Profile</h4>
                         <div class="row mb-3">
                             <div class="col-sm-3 fw-bold">Service:</div>
@@ -112,3 +146,90 @@
         </div>
     </div>
 </div>
+
+<!-- User Image Upload Modal -->
+<div class="modal fade" id="userImageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">เปลี่ยนรูปโปรไฟล์ส่วนตัว</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="file" id="userImageInput" accept="image/*" class="form-control mb-3">
+                <img id="userImagePreview" src="@userImage" style="width: 100%; max-height: 300px; object-fit: contain;" class="mb-3">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="deleteUserImage()">ลบรูป</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" onclick="uploadUserImage()">บันทึก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<script>
+    document.getElementById('userImageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('userImagePreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function uploadUserImage() {
+        const fileInput = document.getElementById('userImageInput');
+        if (!fileInput.files[0]) {
+            alert('กรุณาเลือกรูปภาพ');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('profileImage', fileInput.files[0]);
+
+        fetch('@Url.Action("UploadProfileImage", "Account")', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('userProfileImage').src = data.imagePath;
+                bootstrap.Modal.getInstance(document.getElementById('userImageModal')).hide();
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('เกิดข้อผิดพลาด');
+            console.error(error);
+        });
+    }
+
+    function deleteUserImage() {
+        if (!confirm('คุณต้องการลบรูปโปรไฟล์หรือไม่?')) return;
+
+        fetch('@Url.Action("DeleteProfileImage", "Account")', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('เกิดข้อผิดพลาด');
+            console.error(error);
+        });
+    }
+</script>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ChangOnline.Models;
+using ChangOnline.Models.ViewModels;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -288,7 +289,27 @@ namespace ChangOnline.Controllers
                 return NotFound();
             }
 
-            return View("~/Views/Provider/ProviderInfo.cshtml", provider);
+            // Load reviews
+            var reviews = await _context.ProviderReviews
+                .Include(r => r.Reviewer)
+                .Where(r => r.ProviderId == id)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+
+            var viewModel = new ProviderInfoViewModel
+            {
+                Provider = provider,
+                Provinces = await _context.Provinces.Select(p => new SelectListItem
+                {
+                    Value = p.ProvinceId.ToString(),
+                    Text = p.NameTh
+                }).ToListAsync(),
+                Reviews = reviews,
+                AverageRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0,
+                TotalReviews = reviews.Count
+            };
+
+            return View("~/Views/Provider/ProviderInfo.cshtml", viewModel);
         }
 
         [HttpPost]
@@ -326,9 +347,160 @@ namespace ChangOnline.Controllers
         }
 
         [HttpGet]
-        public IActionResult ForProviderPage()
+        public async Task<IActionResult> ForProviderPage()
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var providerProfile = await _context.ProviderProfiles
+                .Include(p => p.User)
+                .Include(p => p.Categories)
+                .Include(p => p.Province)
+                .Include(p => p.District)
+                .Include(p => p.Subdistrict)
+                .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+            if (providerProfile == null)
+            {
+                TempData["ErrorMessage"] = "คุณยังไม่ได้ลงทะเบียนเป็นช่าง";
+                return RedirectToAction("Register", "Provider");
+            }
+
+            return View(providerProfile);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyJobs()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Get provider profile
+            var providerProfile = await _context.ProviderProfiles
+                .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+            if (providerProfile == null)
+            {
+                TempData["ErrorMessage"] = "คุณยังไม่ได้ลงทะเบียนเป็นช่าง";
+                return RedirectToAction("Register", "Provider");
+            }
+
+            // Get all service requests for this provider
+            var serviceRequests = await _context.ServiceRequests
+                .Include(sr => sr.Requester)
+                .Where(sr => sr.ProviderId == providerProfile.Id)
+                .OrderByDescending(sr => sr.AppointmentDate)
+                .ToListAsync();
+
+            return View(serviceRequests);
+        }
+
+        public class UpdateJobStatusRequest
+        {
+            public int RequestId { get; set; }
+            public string Status { get; set; } = string.Empty;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateJobStatus([FromBody] UpdateJobStatusRequest request)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "กรุณาเข้าสู่ระบบ" });
+            }
+
+            var providerProfile = await _context.ProviderProfiles
+                .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+            if (providerProfile == null)
+            {
+                return Json(new { success = false, message = "ไม่พบข้อมูลช่าง" });
+            }
+
+            var serviceRequest = await _context.ServiceRequests
+                .FirstOrDefaultAsync(sr => sr.Id == request.RequestId && sr.ProviderId == providerProfile.Id);
+
+            if (serviceRequest == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"ไม่พบคำขอบริการ (RequestId: {request.RequestId}, ProviderId: {providerProfile.Id})"
+                });
+            }
+
+            // Update status based on input
+            switch (request.Status.ToLower())
+            {
+                case "accepted":
+                    serviceRequest.Status = ServiceRequestStatus.Accepted;
+                    break;
+                case "rejected":
+                    serviceRequest.Status = ServiceRequestStatus.Rejected;
+                    break;
+                case "completed":
+                    serviceRequest.Status = ServiceRequestStatus.Completed;
+                    break;
+                default:
+                    return Json(new { success = false, message = "สถานะไม่ถูกต้อง" });
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "อัปเดตสถานะสำเร็จ" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitReview(int providerId, int rating, string? comment)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "กรุณาเข้าสู่ระบบ" });
+            }
+
+            // Check if provider exists
+            var provider = await _context.ProviderProfiles.FindAsync(providerId);
+            if (provider == null)
+            {
+                return Json(new { success = false, message = "ไม่พบข้อมูลช่าง" });
+            }
+
+            // Check if user already reviewed this provider
+            var existingReview = await _context.ProviderReviews
+                .FirstOrDefaultAsync(r => r.ProviderId == providerId && r.ReviewerId == user.Id);
+
+            if (existingReview != null)
+            {
+                // Update existing review
+                existingReview.Rating = rating;
+                existingReview.Comment = comment;
+                existingReview.CreatedAt = DateTime.Now;
+            }
+            else
+            {
+                // Create new review
+                var review = new ProviderReview
+                {
+                    ProviderId = providerId,
+                    ReviewerId = user.Id,
+                    Rating = rating,
+                    Comment = comment,
+                    CreatedAt = DateTime.Now
+                };
+                _context.ProviderReviews.Add(review);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "ส่งรีวิวสำเร็จ" });
         }
     }
 }

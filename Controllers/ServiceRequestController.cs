@@ -76,5 +76,35 @@ namespace ChangOnline.Controllers
             TempData["ErrorMessage"] = "ข้อมูลไม่ถูกต้อง: " + string.Join(" | ", errors);
             return RedirectToAction("Index", "AllProvider");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CancelRequest(int requestId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "กรุณาเข้าสู่ระบบ" });
+            }
+
+            var serviceRequest = await _context.ServiceRequests
+                .FirstOrDefaultAsync(sr => sr.Id == requestId && sr.RequesterId == user.Id);
+
+            if (serviceRequest == null)
+            {
+                return Json(new { success = false, message = "ไม่พบคำขอบริการ" });
+            }
+
+            // Check if request can be cancelled
+            if (serviceRequest.Status != ServiceRequestStatus.Pending &&
+                serviceRequest.Status != ServiceRequestStatus.Accepted)
+            {
+                return Json(new { success = false, message = "ไม่สามารถยกเลิกคำขอนี้ได้" });
+            }
+
+            serviceRequest.Status = ServiceRequestStatus.Cancelled;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "ยกเลิกคำขอสำเร็จ" });
+        }
     }
 }

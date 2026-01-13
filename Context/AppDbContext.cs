@@ -16,6 +16,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<ProviderProfile> ProviderProfiles { get; set; }
     public DbSet<ProviderCategoryModel> ProviderCategories { get; set; }
     public DbSet<ServiceRequest> ServiceRequests { get; set; }
+    public DbSet<ProviderReview> ProviderReviews { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -31,6 +32,18 @@ public class AppDbContext : IdentityDbContext<AppUser>
             .HasOne(s => s.Provider)
             .WithMany()
             .HasForeignKey(s => s.ProviderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ProviderReview>()
+            .HasOne(r => r.Provider)
+            .WithMany()
+            .HasForeignKey(r => r.ProviderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ProviderReview>()
+            .HasOne(r => r.Reviewer)
+            .WithMany()
+            .HasForeignKey(r => r.ReviewerId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -1,4 +1,4 @@
-@model ChangOnline.Models.ProviderProfile
+@model ChangOnline.Models.ViewModels.ProviderInfoViewModel
 
 @{
     ViewData["Title"] = "Provider Info";
@@ -28,7 +28,8 @@
     /* ---------- section header + button ---------- */
     .section-header {
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
+        gap: 600px;
         align-items: center;
         margin-bottom: 25px;
     }
@@ -47,6 +48,11 @@
         padding: 8px 22px;
         font-size: 14px;
         cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .request-btn:hover {
+        transform: scale(1.05);
     }
 
     .provider-header {
@@ -118,6 +124,144 @@
         padding: 14px 16px;
         line-height: 1.6;
     }
+
+    /* Modal Styles - copied from AllProvider.cshtml */
+    .custom-modal-overlay {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        overflow: auto;
+        
+    }
+
+    .custom-modal-content {
+        background-color: #fff;
+        /* margin: 5% auto; */
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .custom-modal-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .custom-modal-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .custom-modal-body {
+        padding: 25px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .form-col {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .custom-form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .custom-form-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    .custom-form-control,
+    .custom-form-select {
+        padding: 10px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+
+    .custom-form-control:focus,
+    .custom-form-select:focus {
+        outline: none;
+        border-color: #4f8cff;
+    }
+
+    .job-detail-form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .custom-btn {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e5e7eb;
+    }
+
+    .btn-submit {
+        background: linear-gradient(90deg, #4f8cff, #ff5c5c);
+        color: #fff;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+    }
+
+    .full-width {
+        width: 100%;
+    }
+
+    @@media (min-width: 640px) {
+        .form-row {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
 </style>
 
 
@@ -127,63 +271,58 @@
         <!-- header + button -->
         <div class="section-header">
             <div class="section-title">ข้อมูลช่าง</div>
-            <button class="request-btn">ขอรับบริการ</button>
+            <button class="request-btn" onclick="openModal(@Model.Provider.Id)">ขอรับบริการ</button>
         </div>
 
         <div class="provider-header">
-            <img src="@(string.IsNullOrEmpty(Model.ImagePath) ? "/image/man.png" : Model.ImagePath)" class="provider-image"/>
+            <img src="@(string.IsNullOrEmpty(Model.Provider.ImagePath) ? "/image/man.png" : Model.Provider.ImagePath)" class="provider-image"/>
 
             <div class="provider-form">
 
                 <div class="form-group">
                     <label>ชื่อ</label>
-                    <input class="form-control" value="@Model.User?.FirstName" readonly/>
+                    <input class="form-control" value="@Model.Provider.User?.FirstName" readonly/>
                 </div>
 
                 <div class="form-group">
                     <label>นามสกุล</label>
-                    <input class="form-control" value="@Model.User?.LastName" readonly/>
+                    <input class="form-control" value="@Model.Provider.User?.LastName" readonly/>
                 </div>
 
                 <div class="form-group full-width">
                     <label>ที่อยู่</label>
-                    <input class="form-control" value="@Model.Address" readonly/>
+                    <input class="form-control" value="@Model.Provider.Address" readonly/>
                 </div>
 
                 <div class="form-group">
                     <label>ตำบล</label>
-                    <input class="form-control" value="@Model.Subdistrict?.name_th" readonly/>
+                    <input class="form-control" value="@Model.Provider.Subdistrict?.name_th" readonly/>
                 </div>
 
                 <div class="form-group">
                     <label>อำเภอ</label>
-                    <input class="form-control" value="@Model.District?.NameTh" readonly/>
+                    <input class="form-control" value="@Model.Provider.District?.NameTh" readonly/>
                 </div>
 
                 <div class="form-group">
                     <label>จังหวัด</label>
-                    <input class="form-control" value="@Model.Province?.NameTh" readonly/>
+                    <input class="form-control" value="@Model.Provider.Province?.NameTh" readonly/>
                 </div>
 
                 <div class="form-group">
                     <label>เบอร์โทร</label>
-                    <input class="form-control" value="@Model.User?.PhoneNumber" readonly/>
+                    <input class="form-control" value="@Model.Provider.User?.PhoneNumber" readonly/>
                 </div>
-
-                @* <div class="form-group full-width">
-                    <label>ประเภทงาน</label>
-                    <input class="form-control" value="@Model.Service" readonly/>
-                </div> *@
 
                 <!-- คงหมวดหมู่เดิม -->
                 <div class="form-group full-width">
                     <label>หมวดหมู่งานที่รับ</label>
                     <div class="category-tags">
-                        @foreach (var cat in Model.Categories)
+                        @foreach (var cat in Model.Provider.Categories)
                         {
                             <span class="category-tag">@cat.Name</span>
                         }
-                        @if (!Model.Categories.Any())
+                        @if (!Model.Provider.Categories.Any())
                         {
                             <span class="category-tag">ไม่ระบุ</span>
                         }
@@ -195,46 +334,272 @@
 
         <div class="section-title">รายละเอียดและอัตราค่าบริการ</div>
 
-        <textarea class="form-control" readonly>@(string.IsNullOrEmpty(Model.Service) ? "ยังไม่มีรายละเอียดเพิ่มเติม" : Model.Service)</textarea>
+        <textarea class="form-control full-width" readonly>@(string.IsNullOrEmpty(Model.Provider.Service) ? "ยังไม่มีรายละเอียดเพิ่มเติม" : Model.Provider.Service)</textarea>
+
+        <!-- Review Section -->
+        <div style="margin-top: 40px;">
+            <div class="section-header">
+                <div class="section-title">รีวิวและคะแนน</div>
+                <div style="font-size: 16px; color: #6b7280;">
+                    <span style="color: #fbbf24; font-size: 20px;">★</span>
+                    <strong>@Model.AverageRating.ToString("F1")</strong>
+                    <span style="color: #9ca3af;">(@Model.TotalReviews รีวิว)</span>
+                </div>
+            </div>
+
+            <!-- Write Review Form -->
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div style="background: #f9fafb; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                    <h6 style="margin-bottom: 15px; font-weight: 600;">เขียนรีวิว</h6>
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-size: 14px; color: #6b7280; margin-bottom: 8px; display: block;">คะแนน</label>
+                        <div class="star-rating" id="starRating">
+                            <span class="star" data-rating="1">★</span>
+                            <span class="star" data-rating="2">★</span>
+                            <span class="star" data-rating="3">★</span>
+                            <span class="star" data-rating="4">★</span>
+                            <span class="star" data-rating="5">★</span>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-size: 14px; color: #6b7280; margin-bottom: 8px; display: block;">ความคิดเห็น</label>
+                        <textarea id="reviewComment" style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; min-height: 100px; resize: vertical;"></textarea>
+                    </div>
+                    <button onclick="submitReview()" style="background: linear-gradient(90deg, #4f8cff, #ff5c5c); color: white; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 500;">
+                        ส่งรีวิว
+                    </button>
+                </div>
+            }
+
+            <!-- Reviews List -->
+            <div>
+                @if (Model.Reviews.Any())
+                {
+                    foreach (var review in Model.Reviews)
+                    {
+                        <div style="border-bottom: 1px solid #e5e7eb; padding: 20px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                <div>
+                                    <strong style="font-size: 15px;">@review.Reviewer?.FirstName @review.Reviewer?.LastName</strong>
+                                    <div style="color: #fbbf24; margin-top: 4px;">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <span style="font-size: 16px;">@(i <= review.Rating ? "★" : "☆")</span>
+                                        }
+                                    </div>
+                                </div>
+                                <span style="font-size: 13px; color: #9ca3af;">@review.CreatedAt.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(review.Comment))
+                            {
+                                <p style="color: #4b5563; margin: 0; line-height: 1.6;">@review.Comment</p>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div style="text-align: center; padding: 40px; color: #9ca3af;">
+                        <p>ยังไม่มีรีวิว</p>
+                    </div>
+                }
+            </div>
+        </div>
 
     </div>
 </div>
 
+<style>
+    .star-rating {
+        font-size: 32px;
+        cursor: pointer;
+    }
 
-@* <div class="provider-info-container">
-    <div class="provider-detail-card">
-        <div class="provider-header">
-            <img src="~/image/man.png" alt="Provider Image" class="provider-image">
-            <div class="provider-name-section">
-                <h2>@(Model.User?.FirstName ?? "Unknown") @(Model.User?.LastName ?? "")</h2>
-                <p class="provider-service-main">@Model.Service</p>
+    .star {
+        color: #d1d5db;
+        transition: color 0.2s;
+    }
+
+    .star:hover,
+    .star.active {
+        color: #fbbf24;
+    }
+</style>
+
+<!-- Custom Service Request Modal -->
+<div id="serviceRequestModalOverlay" class="custom-modal-overlay">
+    <div class="custom-modal-content">
+        <form method="post" action="@Url.Action("Create", "ServiceRequest")" enctype="multipart/form-data">
+            <div class="custom-modal-header">
+                <h5 class="custom-modal-title">ขอใช้บริการ</h5>
             </div>
-        </div>
+            <div class="custom-modal-body">
+                <input type="hidden" name="ProviderId" id="modalProviderId"/>
 
-        <div class="info-section">
-            <p class="info-label">หมวดหมู่งานที่รับ:</p>
-            <div class="category-tags">
-                @foreach (var cat in Model.Categories)
-                {
-                    <span class="category-tag">@cat.Name</span>
-                }
-                @if (!Model.Categories.Any())
-                {
-                    <span class="category-tag">General</span>
-                }
+                <div class="form-row">
+                    <div class="custom-form-group">
+                        <label class="custom-form-label">ที่อยู่</label>
+                        <input type="text" class="custom-form-control" name="Address" required/>
+                    </div>
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">จังหวัด</label>
+                        <select class="custom-form-select" name="ProvinceId" id="modalProvinceSelect" required>
+                            <option value="">-- เลือกจังหวัด --</option>
+                            @foreach (var item in Model.Provinces)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">อำเภอ/เขต</label>
+                        <select class="custom-form-select" name="DistrictId" id="modalDistrictSelect" required>
+                            <option value="">-- เลือกอำเภอ --</option>
+                        </select>
+                    </div>
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">ตำบล/แขวง</label>
+                        <select class="custom-form-select" name="SubdistrictId" id="modalSubdistrictSelect" required>
+                            <option value="">-- เลือกตำบล --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">วันที่สะดวก</label>
+                        <input type="date" class="custom-form-control" name="AppointmentDate" required/>
+                    </div>
+                    <div class="form-col custom-form-group">
+                        <label class="custom-form-label">เบอร์โทรศัพท์ติดต่อ</label>
+                        <input type="tel" class="custom-form-control" name="ContactNumber" required/>
+                    </div>
+                </div>
+                <div class="custom-form-group job-detail-form-group">
+                    <label class="custom-form-label">รายละเอียดงาน</label>
+                    <textarea class="custom-form-control" name="JobDetails" required rows="5"></textarea>
+                </div>
+                <div class="custom-form-group">
+                    <input type="hidden" class="custom-form-control" name="Remarks"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="custom-btn btn-cancel" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="custom-btn btn-submit">ส่งคำขอ</button>
+                </div>
             </div>
-        </div>
-
-        <div class="info-section">
-            <p class="info-label">พื้นที่ให้บริการ:</p>
-            <p class="info-value">
-                @Model.Address
-                <br/>
-                @(Model.Subdistrict?.name_th ?? "-"), @(Model.District?.NameTh ?? "-"), @(Model.Province?.NameTh ?? "-")
-            </p>
-        </div>
-
-        <a href="#" class="request-service-btn">ขอใช้บริการ (Coming Soon)</a>
+        </form>
     </div>
-</div> *@
+</div>
 
+<script>
+    function openModal(providerId) {
+        document.getElementById('modalProviderId').value = providerId;
+        document.getElementById('serviceRequestModalOverlay').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('serviceRequestModalOverlay').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        var modal = document.getElementById('serviceRequestModalOverlay');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Cascading Dropdowns using ProviderController APIs
+        $('#modalProvinceSelect').change(function () {
+            var provinceId = $(this).val();
+            $.getJSON('@Url.Action("GetDistricts", "Provider")', { provinceId: provinceId }, function (data) {
+                var items = '<option value="">-- เลือกอำเภอ --</option>';
+                $.each(data, function (i, district) {
+                    items += "<option value='" + district.id + "'>" + district.name + "</option>";
+                });
+                $('#modalDistrictSelect').html(items);
+                $('#modalSubdistrictSelect').html('<option value="">-- เลือกตำบล --</option>');
+            });
+        });
+
+        $('#modalDistrictSelect').change(function () {
+            var districtId = $(this).val();
+            $.getJSON('@Url.Action("GetSubdistricts", "Provider")', { districtId: districtId }, function (data) {
+                var items = '<option value="">-- เลือกตำบล --</option>';
+                $.each(data, function (i, subdistrict) {
+                    items += "<option value='" + subdistrict.id + "'>" + subdistrict.name + "</option>";
+                });
+                $('#modalSubdistrictSelect').html(items);
+            });
+        });
+    });
+
+    // Star Rating System
+    let selectedRating = 0;
+    const stars = document.querySelectorAll('.star');
+
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(this.getAttribute('data-rating'));
+            updateStars();
+        });
+
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            highlightStars(rating);
+        });
+    });
+
+    document.querySelector('.star-rating')?.addEventListener('mouseleave', function() {
+        updateStars();
+    });
+
+    function highlightStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    function updateStars() {
+        highlightStars(selectedRating);
+    }
+
+    function submitReview() {
+        if (selectedRating === 0) {
+            alert('กรุณาเลือกคะแนน');
+            return;
+        }
+
+        const comment = document.getElementById('reviewComment').value;
+
+        fetch('@Url.Action("SubmitReview", "Provider")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `providerId=@Model.Provider.Id&rating=${selectedRating}&comment=${encodeURIComponent(comment)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('เกิดข้อผิดพลาด: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            console.error('Error:', error);
+        });
+    }
+</script>

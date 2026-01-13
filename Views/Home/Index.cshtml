@@ -77,21 +77,44 @@
     </div>
 
     <div class="comment-container">
-        <div class="comment-card">
-            <div class="star">
-                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
-                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
-                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
-                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
-                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
+        @if (Model.RandomReviews != null && Model.RandomReviews.Any())
+        {
+            foreach (var review in Model.RandomReviews)
+            {
+                <div class="comment-card">
+                    <div class="star">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            @if (i <= review.Rating)
+                            {
+                                <i class="fa-solid fa-star" style="color: #74C0FC;"></i>
+                            }
+                            else
+                            {
+                                <i class="fa-regular fa-star" style="color: #d1d5db;"></i>
+                            }
+                        }
+                    </div>
+                    <p class="comment-text">@review.Comment</p>
+                    <div class="horizontal-line"></div>
+                    <div class="comment-user-info">
+                        @{
+                            var reviewerImage = !string.IsNullOrEmpty(review.Reviewer?.ImagePath)
+                                ? review.Reviewer.ImagePath
+                                : "/image/man.png";
+                        }
+                        <img src="@reviewerImage" alt="">
+                        <p class="comment-user">@review.Reviewer?.FirstName @review.Reviewer?.LastName</p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="comment-card">
+                <p class="comment-text" style="text-align: center; color: #9ca3af;">ยังไม่มีรีวิว</p>
             </div>
-            <p class="comment-text">ช่างมาตรงเวลา งานเรียบร้อยดีครับ</p>
-            <div class="horizontal-line"></div>
-            <div class="comment-user-info">
-                <img src="~/image/man.png" alt="">
-                <p class="comment-user">นายสมชาย ใจดี</p>
-            </div>
-        </div>
+        }
     </div>
 </div>
 

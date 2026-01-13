@@ -20,12 +20,12 @@
         <form method="get" action="@Url.Action("Index", "AllProvider")" class="search-group">
             <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="ค้นหาช่างที่นี่">
             <button type="submit">ค้นหา</button>
-            <div class="filter">
+            @* <div class="filter">
                 <button type="button">ตัวกรอง</button>
             </div>
             <div class="sort">
                 <button type="button">เรียง</button>
-            </div>
+            </div> *@
         </form>
     </div>
     <div class="all-provider-list">
